@@ -3,6 +3,7 @@ use std::process::{Command, Stdio};
 
 use directories::UserDirs;
 use excersise::excersise_1::Excersise1;
+use excersise::excersise_10::Excersise10;
 use excersise::Exercise;
 use excersise::excersise_12::Excersise12;
 use excersise::excersise_15::Excersise15;
@@ -58,6 +59,9 @@ enum AppState {
     Excersise15,
     Excersise15Learning,
     Excersise15SubExcersise1,
+    Excersise10SubExcersise1,
+    Excersise10Learning,
+    Excersise10,
 }
 
 #[derive(Debug, Clone)]
@@ -92,11 +96,14 @@ impl Sandbox for App {
 
     fn update(&mut self, message: Self::Message) {
         match &message {
+            // При нажатии на кнопку входа
             Message::OpenExcersiseList => {
+                // Загружаем профиль
                 self.save = init_login(&self.login);
+                // Создаём директорию ~/ОГЭ/ для заданий 12-15
                 create_app_directory();
+                // Меняем состояние программы на выбор упражнения
                 self.state = AppState::ChoosingExcersise;
-                save_login_data(&self.save);
             },
             Message::LoginChanged(new_text) => self.login = new_text.into(),
             Message::SelectedExcersise(excersise_number) => {
@@ -135,6 +142,12 @@ impl Sandbox for App {
                             _ => todo!()
                         }
                     },
+                    10 => {
+                        match subexcersise_number {
+                            1 => self.state = AppState::Excersise10SubExcersise1,
+                            _ => todo!()
+                        }
+                    },
                     12 => {
                         match subexcersise_number {
                             1 => self.state = AppState::Excersise12SubExcersise1,
@@ -167,17 +180,6 @@ impl Sandbox for App {
             Message::SetState(state) => {
                 if let Some(excersise_data) = &mut self.excersise_data {
                     excersise_data.state = state.to_owned();
-
-                    match self.state {
-                        AppState::Excersise1SubExcersise1 => todo!(),
-                        AppState::Excersise3SubExcersise1 => todo!(),
-                        AppState::Excersise5SubExcersise1 => todo!(),
-                        AppState::Excersise6SubExcersise1 => todo!(),
-                        AppState::Excersise7SubExcersise1 => todo!(),
-                        AppState::Excersise12SubExcersise1 => todo!(),
-                        AppState::Excersise15SubExcersise1 => todo!(),
-                        _ => ()
-                    }
                 }
                 save_login_data(&self.save);
             },
@@ -250,6 +252,7 @@ impl Sandbox for App {
                     5 => self.state = AppState::Excersise5Learning,
                     6 => self.state = AppState::Excersise6Learning,
                     7 => self.state = AppState::Excersise7Learning,
+                    10 => self.state = AppState::Excersise10Learning,
                     12 => self.state = AppState::Excersise12Learning,
                     15 => self.state = AppState::Excersise15Learning,
                     _ => todo!()
@@ -262,7 +265,8 @@ impl Sandbox for App {
 
     fn view(&self) -> iced::Element<'_, Self::Message> {
         let save = &self.save;
-        match self.state {
+        let app_state = &self.state;
+        match app_state {
             // Если пользователю надо показать экран входа в профиль
             AppState::Login => self.login_view(),
             // Если пользователю надо показать экран выбора задания
@@ -288,6 +292,9 @@ impl Sandbox for App {
             AppState::Excersise15 => Excersise15::select_subexcersise_view(save.total_done_excersise15, save.done_correctly_excersise15),
             AppState::Excersise15Learning => Excersise15::learning_view(),
             AppState::Excersise15SubExcersise1 => Excersise15::practice_view(self.excersise_data.clone()),
+            AppState::Excersise10=> Excersise10::select_subexcersise_view(save.total_done_excersise10, save.done_correctly_excersise10),
+            AppState::Excersise10Learning => Excersise10::learning_view(),
+            AppState::Excersise10SubExcersise1 => Excersise10::practice_view(self.excersise_data.clone()),
         }
     }
 }
@@ -301,6 +308,7 @@ impl App {
             5 => self.state = AppState::Excersise5,
             6 => self.state = AppState::Excersise6,
             7 => self.state = AppState::Excersise7,
+            10 => self.state = AppState::Excersise10,
             12 => self.state = AppState::Excersise12,
             15 => self.state = AppState::Excersise15,
             _ => todo!()
@@ -367,7 +375,8 @@ impl App {
                         .height(Length::Fixed(80.0)),
                     button(text("10").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
                         .width(Length::Fixed(80.0))
-                        .height(Length::Fixed(80.0)),
+                        .height(Length::Fixed(80.0))
+                        .on_press(Message::SelectedExcersise(10)),
                 ].spacing(15),
                 row![
                     button(text("11").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))

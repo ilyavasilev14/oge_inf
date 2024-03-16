@@ -8,10 +8,12 @@ pub mod excersise_3;
 pub mod excersise_5;
 pub mod excersise_6;
 pub mod excersise_7;
+pub mod excersise_10;
 pub mod excersise_12;
 pub mod excersise_15;
 
 pub trait Exercise {
+    // Выбор практики или обучения
     fn select_subexcersise_view<'a>(done_totally: u32, done_correctly: u32) -> iced::Element<'a, Message> {
         let done_correctly_percent = 
             (done_correctly as f32 / done_totally as f32 * 100.0).round() as u32;
@@ -43,7 +45,7 @@ pub trait Exercise {
         main_container.into()
     }
 
-
+    // Практика
     fn practice_view<'a>(excersise_data: Option<ExcersiseData>) -> iced::Element<'a, Message> {
         println!("practice view");
         if let Some(excersise_data) = excersise_data {
@@ -117,8 +119,9 @@ pub trait Exercise {
     }
 
 
-
+    // Создание случайного задания
     fn generate_random_excersise() -> ExcersiseData;
+    // Обучение
     fn learning_view<'a>() -> iced::Element<'a, Message>;
 
     fn text_size() -> u16 {
