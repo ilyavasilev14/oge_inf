@@ -1,5 +1,5 @@
 use iced::widget::text;
-use rand::{distributions::{Alphanumeric, DistString}, Rng};
+use rand::Rng;
 use crate::{ExcersiseData, ExcersiseState, Message};
 use super::Exercise;
 

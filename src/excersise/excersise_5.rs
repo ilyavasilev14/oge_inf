@@ -14,12 +14,7 @@ impl Exercise for Excersise5 {
     }
 
     fn generate_random_excersise() -> ExcersiseData {
-        //let ex_type = rand::thread_rng().gen_range(0..4);
-        let ex_type = rand::thread_rng().gen_range(1..=2);
-        match ex_type {
-            1 => generate_excersise_type1(),
-            _ => generate_excersise_type2(),
-        }
+        generate_excersise_type1()
     }
 
     fn select_subexcersise() -> Message {

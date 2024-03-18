@@ -1,4 +1,4 @@
-use iced::widget::text;
+use iced::widget::{button, column, container, scrollable, text, Image};
 use rand::{distributions::{Alphanumeric, DistString}, Rng};
 use crate::{ExcersiseData, ExcersiseState, Message};
 use super::Exercise;
@@ -8,9 +8,27 @@ pub struct Excersise1 { }
 
 impl Exercise for Excersise1 {
     fn learning_view<'a>() -> iced::Element<'a, Message> {
-        text("ad;slkfjfjasdlk;fjfj")
+        let text: iced::Element<'a, Message> = text(
+"   Есть два варианта этого задания. Первый про поиск удалённого слова, а во втором надо найти объём текста.
+    Сначала нужно выяснить объём одного символа в байтах. Для этого нужно данный в битах объём разделить на 8.
+    В задании, где надо найти, какое из слов удалили, надо посчитать то, сколько символов было удалено. Для этого надо разделить то, насколько уменьшился файл, на объём одного символа. Потом надо найти количество убранных букв, потому что кроме букв были удалены запятая и пробел. Чтобы его вычислить, надо просто вычесть из всех символов число 2. Затем требуется найти слово с таким количеством букв в нём, оно и является ответом.
+    Во втором варианте упражнения надо умножить количество символов в строке на кол-во строк, а затем домножить на страницы. После этого, чтобы найти информационный объём в байтах, надо умножить найденное ранее значение на объём одного символа. После этого необходимо перевести его из байтов в нужную  единицу измерения.")
             .size(Self::text_size())
-            .into()
+            .vertical_alignment(iced::alignment::Vertical::Center)
+            .horizontal_alignment(iced::alignment::Horizontal::Center)
+            .into();
+
+
+        let scroll = scrollable(text);
+        let column = 
+            column![
+                button(Image::new("back_arrow.png").width(100).height(100)).on_press(Message::OpenExcersiseList),
+                scroll
+            ]
+            .spacing(15);
+        let cont = container(column).into();
+
+        cont
     }
 
     fn generate_random_excersise() -> ExcersiseData {
