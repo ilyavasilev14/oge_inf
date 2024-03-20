@@ -4,6 +4,8 @@ use iced::widget::{button, column, container, scrollable, text, Image};
 use rand::{Rng, distributions::{Alphanumeric, DistString}};
 use crate::{Message, ExcersiseData, ExcersiseState};
 use super::Exercise;
+use std::process::Command;
+use std::path::PathBuf;
 
 
 pub struct Excersise12 { }
@@ -81,7 +83,7 @@ fn generate_excersise_type1() -> ExcersiseData {
 
             for _ in 0..file_count {
                 let file_name = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(4..=8));
-                File::create(dir_path.join(file_name)).expect("failed to create a file in other dir!");
+                create_file(dir_path.join(file_name));
             }
         }
 
@@ -89,7 +91,7 @@ fn generate_excersise_type1() -> ExcersiseData {
             let file_name = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(4..=8));
             let file_ext = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(2..=4));
             let file_name = file_name + "." + &file_ext;
-            File::create(required_dir_path.join(file_name)).expect("failed to create a file in required dir!");
+            create_file(required_dir_path.join(file_name));
         }
 
         for _ in 0..required_dir_file_count {
@@ -97,7 +99,7 @@ fn generate_excersise_type1() -> ExcersiseData {
             let file_ext = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(2..=4));
             let file_name = file_name + "." + &file_ext;
 
-            File::create(required_dir_path.join(file_name)).expect("failed to create a file in required dir!");
+            create_file(required_dir_path.join(file_name));
         }
 
         for _ in 0..required_dir_required_file_count {
@@ -105,7 +107,7 @@ fn generate_excersise_type1() -> ExcersiseData {
             let file_name = file_name + "." + &required_file_extention;
 
             dbg!(&required_dir_path.join(&file_name));
-            File::create(required_dir_path.join(file_name)).expect("failed to create a required file in required dir!");
+            create_file(required_dir_path.join(file_name));
         }
     } else {
         panic!("failed to get user dirs");
@@ -150,7 +152,7 @@ fn generate_excersise_type2() -> ExcersiseData {
 
             for _ in 0..file_count {
                 let file_name = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(4..=8));
-                File::create(dir_path.join(file_name)).expect("failed to create a file in other dir!");
+                create_file(dir_path.join(file_name));
             }
         }
 
@@ -158,7 +160,7 @@ fn generate_excersise_type2() -> ExcersiseData {
             let file_name = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(4..=8));
             let file_ext = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(2..=4));
             let file_name = file_name + "." + &file_ext;
-            File::create(required_dir_path.join(file_name)).expect("failed to create a file in required dir!");
+            create_file(required_dir_path.join(file_name));
         }
 
         for _ in 0..required_dir_file_count {
@@ -166,14 +168,14 @@ fn generate_excersise_type2() -> ExcersiseData {
             let file_ext = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(2..=4));
             let file_name = file_name + "." + &file_ext;
 
-            File::create(required_dir_path.join(file_name)).expect("failed to create a file in required dir!");
+            create_file(required_dir_path.join(file_name));
         }
 
         for _ in 0..required_dir_required_file_count {
             let file_name = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(4..=8));
             let file_name = file_name + "." + &required_file_extention;
 
-            File::create(required_dir_path.join(file_name)).expect("failed to create a required file in required dir!");
+            create_file(required_dir_path.join(file_name));
         }
 
         for _ in 0..required_dir_required_file_size_count {
@@ -181,10 +183,11 @@ fn generate_excersise_type2() -> ExcersiseData {
             let file_name = file_name + "." + &required_file_extention;
 
             dbg!(&file_name);
-            let file = File::create(required_dir_path.join(file_name))
-                .expect("failed to create a required file with required size in required dir!");
-            file.set_len(rand::thread_rng().gen_range(required_file_size_bytes + 3..=3000))
-                .expect("failed to set file size");
+            let path = required_dir_path.join(file_name.clone());
+            let file = create_file(path.clone());
+            dbg!(required_dir_path.join(file_name.clone()));
+            let size = rand::thread_rng().gen_range(required_file_size_bytes + 3..=3000);
+            set_file_size(path, size);
         }
     } else {
         panic!("failed to get user dirs");
@@ -204,3 +207,18 @@ fn generate_excersise_type2() -> ExcersiseData {
 
 }
 
+fn create_file(path: PathBuf) {
+    Command::new("touch")
+        .arg(path)
+        .spawn()
+        .expect("failed to run touch command");
+}
+
+fn set_file_size(path: PathBuf, size: u32) {
+    Command::new("truncate")
+        .arg("-s")
+        .arg(size.to_string())
+        .arg(path)
+        .spawn()
+        .expect("failed to run truncate command");
+}
