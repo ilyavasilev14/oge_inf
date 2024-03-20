@@ -1,4 +1,4 @@
-use iced::{widget::{container, column, button, text, Image}, alignment::{Horizontal, Vertical}, Length, Alignment};
+use iced::{widget::{container, scrollable, column, button, text, Image}, alignment::{Horizontal, Vertical}, Length, Alignment};
 use iced_aw::Modal;
 use rand::{Rng, seq::SliceRandom};
 use serde::{Serialize, Deserialize};
@@ -10,9 +10,23 @@ pub struct Excersise15 { }
 
 impl Exercise for Excersise15 {
     fn learning_view<'a>() -> iced::Element<'a, Message> {
-        text("ad;slkfjfjasdlk;fjfj")
+        let text: iced::Element<'a, Message> = text("Обучение для этого типа заданий ещё в разработке.")
             .size(Self::text_size())
-            .into()
+            .vertical_alignment(iced::alignment::Vertical::Center)
+            .horizontal_alignment(iced::alignment::Horizontal::Center)
+            .into();
+
+
+        let scroll = scrollable(text);
+        let column =
+            column![
+                button(Image::new("back_arrow.png").width(100).height(100)).on_press(Message::OpenExcersiseList),
+                scroll
+            ]
+            .spacing(15);
+        let cont = container(column).into();
+
+        cont
     }
 
     fn practice_view<'a>(excersise_data: Option<ExcersiseData>) -> iced::Element<'a, Message> {
@@ -160,6 +174,7 @@ fn generate_excersise_type2() -> ExcersiseData {
 
     let answer = Excersise15Data::from_excersise_data_type2(example);
     let answer_str = toml::to_string(&answer).unwrap();
+    println!("type 2");
     dbg!(&answer_str);
 
     ExcersiseData { 
@@ -224,6 +239,7 @@ impl Excersise15Data {
                 output += num;
             }
         });
+        dbg!(&output);
 
         Excersise15Data { division_num, four_number_task, max_num, num_count, numbers, num_pretty_str, output }
     }
@@ -346,7 +362,7 @@ impl Excersise15Data {
             input += "\n";
 
             if num % answer.division_num == 0 {
-                output += *num;
+                output += num;
             }
         });
         let output = output.to_string();

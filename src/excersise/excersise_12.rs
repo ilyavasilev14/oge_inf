@@ -104,6 +104,7 @@ fn generate_excersise_type1() -> ExcersiseData {
             let file_name = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(4..=8));
             let file_name = file_name + "." + &required_file_extention;
 
+            dbg!(&required_dir_path.join(&file_name));
             File::create(required_dir_path.join(file_name)).expect("failed to create a required file in required dir!");
         }
     } else {
@@ -179,6 +180,7 @@ fn generate_excersise_type2() -> ExcersiseData {
             let file_name = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(4..=8));
             let file_name = file_name + "." + &required_file_extention;
 
+            dbg!(&file_name);
             let file = File::create(required_dir_path.join(file_name))
                 .expect("failed to create a required file with required size in required dir!");
             file.set_len(rand::thread_rng().gen_range(required_file_size_bytes + 3..=3000))

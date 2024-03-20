@@ -23,7 +23,6 @@ mod excersise;
 
 fn main() {
     let mut settings = Settings::default();
-    settings.window.min_size = Some((1000, 800));
     settings.default_font = Some(include_bytes!("Comfortaa-font.ttf"));
     let _ = App::run(settings);
 }
@@ -199,7 +198,7 @@ impl Sandbox for App {
                     let home_dir = user_dirs.home_dir();
                     let path = home_dir.join("ОГЭ/solution.py");
 
-                    Command::new("kate")
+                    Command::new("kwrite")
                         .arg(path)
                         .output()
                         .expect("Failed to execute command 'kate'");
@@ -227,6 +226,7 @@ impl Sandbox for App {
                     let output_str = &String::from_utf8(output.stdout).unwrap();
                     let output_str = &output_str.replace("\n", "");
                     dbg!(&output_str);
+                    dbg!(&expected_output);
                     if output_str == expected_output {
                         self.excersise_data.as_mut().unwrap().state = ExcersiseState::RightAnswer;
                     } else {
@@ -234,7 +234,7 @@ impl Sandbox for App {
                     }
 
                     Command::new("killall")
-                        .arg("kate")
+                        .arg("kwrite")
                         .spawn()
                         .unwrap();
                     Command::new("rm")

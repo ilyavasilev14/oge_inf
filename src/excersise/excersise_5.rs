@@ -1,4 +1,4 @@
-use iced::widget::text;
+use iced::widget::{button, column, container, scrollable, text, Image};
 use rand::Rng;
 use crate::{Message, ExcersiseData, ExcersiseState};
 use super::Exercise;
@@ -8,9 +8,23 @@ pub struct Excersise5 { }
 
 impl Exercise for Excersise5 {
     fn learning_view<'a>() -> iced::Element<'a, Message> {
-        text("ad;slkfjfjasdlk;fjfj")
+         let text: iced::Element<'a, Message> = text("Обучение для этого типа заданий ещё в разработке.")
             .size(Self::text_size())
-            .into()
+            .vertical_alignment(iced::alignment::Vertical::Center)
+            .horizontal_alignment(iced::alignment::Horizontal::Center)
+            .into();
+
+
+        let scroll = scrollable(text);
+        let column =
+            column![
+                button(Image::new("back_arrow.png").width(100).height(100)).on_press(Message::OpenExcersiseList),
+                scroll
+            ]
+            .spacing(15);
+        let cont = container(column).into();
+
+        cont
     }
 
     fn generate_random_excersise() -> ExcersiseData {
