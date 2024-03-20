@@ -4,6 +4,7 @@ use rand::{Rng, distributions::{Distribution, Standard}};
 use crate::{Message, ExcersiseData, ExcersiseState};
 
 pub mod excersise_1;
+pub mod excersise_2;
 pub mod excersise_3;
 pub mod excersise_5;
 pub mod excersise_6;

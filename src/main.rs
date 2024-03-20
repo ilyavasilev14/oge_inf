@@ -4,6 +4,7 @@ use std::process::{Command, Stdio};
 use directories::UserDirs;
 use excersise::excersise_1::Excersise1;
 use excersise::excersise_10::Excersise10;
+use excersise::excersise_2::Excersise2;
 use excersise::Exercise;
 use excersise::excersise_12::Excersise12;
 use excersise::excersise_15::Excersise15;
@@ -61,6 +62,9 @@ enum AppState {
     Excersise10SubExcersise1,
     Excersise10Learning,
     Excersise10,
+    Excersise2SubExcersise1,
+    Excersise2Learning,
+    Excersise2,
 }
 
 #[derive(Debug, Clone)]
@@ -80,6 +84,7 @@ enum Message {
     /// input, output
     PythonCheckAnswer(String, String),
     SelectedLearningExcersise(i32),
+    CheckExcersise2
 }
 
 impl Sandbox for App {
@@ -114,6 +119,12 @@ impl Sandbox for App {
                     1 => {
                         match subexcersise_number {
                             1 => self.state = AppState::Excersise1SubExcersise1,
+                            _ => todo!()
+                        }
+                    },
+                    2 => {
+                        match subexcersise_number {
+                            1 => self.state = AppState::Excersise2SubExcersise1,
                             _ => todo!()
                         }
                     },
@@ -248,6 +259,7 @@ impl Sandbox for App {
             Message::SelectedLearningExcersise(excersise_number) => {
                 match excersise_number {
                     1 => self.state = AppState::Excersise1Learning,
+                    2 => self.state = AppState::Excersise2Learning,
                     3 => self.state = AppState::Excersise3Learning,
                     5 => self.state = AppState::Excersise5Learning,
                     6 => self.state = AppState::Excersise6Learning,
@@ -256,6 +268,27 @@ impl Sandbox for App {
                     12 => self.state = AppState::Excersise12Learning,
                     15 => self.state = AppState::Excersise15Learning,
                     _ => todo!()
+                }
+            },
+            Message::CheckExcersise2 => {
+                if let Some(excersise_data) = &mut self.excersise_data {
+                    let mut number_str = String::new();
+                    let chars = excersise_data.input_field_text.chars();
+                    chars.for_each(|char| {
+                        match char {
+                            'А' => number_str += "10",
+                            'Б' => number_str += "110",
+                            'В' => number_str += "12",
+                            'Г' => number_str += "102",
+                            _ => ()
+                        }
+                    });
+
+                    if number_str == excersise_data.right_answer {
+                        excersise_data.state = ExcersiseState::RightAnswer;
+                    } else {
+                        excersise_data.state = ExcersiseState::WrongAnswer;
+                    }
                 }
             },
         };
@@ -274,6 +307,9 @@ impl Sandbox for App {
             AppState::Excersise1 => Excersise1::select_subexcersise_view(save.total_done_excersise1, save.done_correctly_excersise1),
             AppState::Excersise1Learning => Excersise1::learning_view(),
             AppState::Excersise1SubExcersise1 => Excersise1::practice_view(self.excersise_data.clone()),
+            AppState::Excersise2 => Excersise2::select_subexcersise_view(save.total_done_excersise2, save.done_correctly_excersise2),
+            AppState::Excersise2Learning => Excersise2::learning_view(),
+            AppState::Excersise2SubExcersise1 => Excersise2::practice_view(self.excersise_data.clone()),
             AppState::Excersise3 => Excersise3::select_subexcersise_view(save.total_done_excersise3, save.done_correctly_excersise3),
             AppState::Excersise3Learning => Excersise3::learning_view(),
             AppState::Excersise3SubExcersise1 => Excersise3::practice_view(self.excersise_data.clone()),
@@ -304,6 +340,7 @@ impl App {
     fn handle_selecting_excersise(&mut self, excersise_number: u8) {
         match excersise_number {
             1 => self.state = AppState::Excersise1,
+            2 => self.state = AppState::Excersise2,
             3 => self.state = AppState::Excersise3,
             5 => self.state = AppState::Excersise5,
             6 => self.state = AppState::Excersise6,
@@ -345,7 +382,8 @@ impl App {
                         .on_press(Message::SelectedExcersise(1)),
                     button(text("2").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
                         .width(Length::Fixed(80.0))
-                        .height(Length::Fixed(80.0)),
+                        .height(Length::Fixed(80.0))
+                        .on_press(Message::SelectedExcersise(2)),
                     button(text("3").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
