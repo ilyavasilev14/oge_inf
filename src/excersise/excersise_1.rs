@@ -172,14 +172,15 @@ fn generate_excersise_type2() -> ExcersiseData {
         _ => unreachable!()
     }
 
-    let right_answer_num = pages_count * lines_count * char_count * char_size / 8;
+    let right_answer_num = (pages_count * lines_count * char_count * char_size) as f32 / 8.0 / 1024.0;
+    let right_answer_num = right_answer_num.round();
     let right_answer = right_answer_num.to_string();
 
 
 
     let title = 
 format!("Каждый символ в кодировке {}. Текст, набранный на компьютере, содержит {} страниц, каждая по {} строк, а каждая строка состоит из {} символов.
-Определите информационный объём текста в Кбайтах.", char_size_description, pages_count, lines_count, char_count);
+Определите информационный объём текста в Кбайтах. Ответ округлите до целых.", char_size_description, pages_count, lines_count, char_count);
     ExcersiseData {
         title,
         right_answer,
