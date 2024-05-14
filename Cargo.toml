@@ -6,8 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+calamine = "0.24.0"
 directories = "5.0.1"
 downcast-rs = "1.2.0"
+edit-xlsx = "0.4.3"
 fakedata_generator = "0.4.0"
 iced = { version = "0.9.0", features = ["image"] }
 iced_aw = { version = "0.5", default-features = false, features = ["modal", "card"] }

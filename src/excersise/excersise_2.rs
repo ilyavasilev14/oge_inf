@@ -1,7 +1,7 @@
 use iced::{alignment::{Horizontal, Vertical}, widget::{button, column, container, scrollable, text, text_input, Image}, Alignment, Length};
 use iced_aw::Modal;
 use rand::Rng;
-use crate::{Message, ExcersiseData, ExcersiseState};
+use crate::{Message, ExersiseData, ExcersiseState};
 use super::Exercise;
 
 
@@ -28,7 +28,7 @@ impl Exercise for Excersise2 {
         cont
     }
 
-    fn practice_view<'a>(excersise_data: Option<ExcersiseData>) -> iced::Element<'a, Message> {
+    fn practice_view<'a>(excersise_data: Option<ExersiseData>) -> iced::Element<'a, Message> {
         println!("practice view");
         if let Some(excersise_data) = excersise_data {
             let excersise_container = container(
@@ -101,7 +101,7 @@ impl Exercise for Excersise2 {
         }
     }
 
-    fn generate_random_excersise() -> ExcersiseData {
+    fn generate_random_excersise() -> ExersiseData {
         /*letters_values.insert(10, "А");
         letters_values.insert(110, "Б");
         letters_values.insert(12, "В");
@@ -136,7 +136,7 @@ impl Exercise for Excersise2 {
 {}
 В ответе запишите последовательность букв без запятых и других знаков препинания.", num_str);
 
-        ExcersiseData {
+        ExersiseData {
             title,
             right_answer: num_str,
             input_field_text: String::new(),
@@ -145,7 +145,7 @@ impl Exercise for Excersise2 {
     }
 
     fn select_subexcersise() -> Message {
-        Message::SelectedSubExcersise(2, 1, Self::generate_random_excersise())
+        Message::SelectedSubExcersise(2, Self::generate_random_excersise())
     }
 
     fn select_excersise() -> Message {

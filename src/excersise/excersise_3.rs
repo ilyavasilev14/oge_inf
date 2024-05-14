@@ -1,6 +1,6 @@
 use iced::widget::{button, column, container, scrollable, text, Image};
 use rand::{Rng, distributions::{Distribution, Standard}};
-use crate::{Message, ExcersiseData, ExcersiseState};
+use crate::{Message, ExersiseData, ExcersiseState};
 use super::Exercise;
 
 
@@ -36,7 +36,7 @@ impl Exercise for Excersise3 {
         cont
     }
 
-    fn generate_random_excersise() -> ExcersiseData {
+    fn generate_random_excersise() -> ExersiseData {
         //let ex_type = rand::thread_rng().gen_range(0..4);
         let ex_type = rand::thread_rng().gen_range(1..=2);
         match ex_type {
@@ -46,7 +46,7 @@ impl Exercise for Excersise3 {
     }
 
     fn select_subexcersise() -> Message {
-        Message::SelectedSubExcersise(3, 1, Self::generate_random_excersise())
+        Message::SelectedSubExcersise(3, Self::generate_random_excersise())
     }
 
     fn select_excersise() -> Message {
@@ -65,7 +65,7 @@ impl Exercise for Excersise3 {
 
 
 // Answer: exact number
-fn generate_excersise_type1() -> ExcersiseData {
+fn generate_excersise_type1() -> ExersiseData {
      let or_excersise: bool = rand::random(); // Упражнение с ИЛИ?
      let number_in_not = rand::thread_rng().gen_range(0..=150); // Число, перед которым стоит НЕ
      let number_in_normal = number_in_not + 1; // Число, перед которым нет НЕ
@@ -82,7 +82,7 @@ fn generate_excersise_type1() -> ExcersiseData {
                  format!("Напишите целое число X, для которого ложно высказывание:\n(X > {}) ИЛИ НЕ (X > {})", number_in_normal, number_in_not);
          }
 
-         let data = ExcersiseData {
+         let data = ExersiseData {
              title,
              right_answer: number_in_normal.to_string(),
              input_field_text: "".into(),
@@ -99,7 +99,7 @@ fn generate_excersise_type1() -> ExcersiseData {
                  format!("Напишите целое число X, для которого истинно высказывание:\n(X < {}) И НЕ (X < {})", number_in_normal, number_in_not);
          }
 
-         let data = ExcersiseData {
+         let data = ExersiseData {
              title,
              right_answer: number_in_not.to_string(),
              input_field_text: "".into(),
@@ -111,7 +111,7 @@ fn generate_excersise_type1() -> ExcersiseData {
 }
 
 // Answer: max value
-fn generate_excersise_type2() -> ExcersiseData {
+fn generate_excersise_type2() -> ExersiseData {
     let random_variant: Type2Variations = rand::random(); 
     let right_answer;
     let title: String;
@@ -160,7 +160,7 @@ fn generate_excersise_type2() -> ExcersiseData {
         },
     }
 
-    let data = ExcersiseData {
+    let data = ExersiseData {
         title,
         right_answer: right_answer.to_string(),
         input_field_text: "".into(),

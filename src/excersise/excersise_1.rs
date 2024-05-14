@@ -1,6 +1,6 @@
 use iced::widget::{button, column, container, scrollable, text, Image};
 use rand::{distributions::{Alphanumeric, DistString}, Rng};
-use crate::{ExcersiseData, ExcersiseState, Message};
+use crate::{ExersiseData, ExcersiseState, Message};
 use super::Exercise;
 
 
@@ -31,7 +31,7 @@ impl Exercise for Excersise1 {
         cont
     }
 
-    fn generate_random_excersise() -> ExcersiseData {
+    fn generate_random_excersise() -> ExersiseData {
         //let ex_type = rand::thread_rng().gen_range(0..4);
         let ex_type = rand::thread_rng().gen_range(1..=2);
         match ex_type {
@@ -41,7 +41,7 @@ impl Exercise for Excersise1 {
     }
 
     fn select_subexcersise() -> Message {
-        Message::SelectedSubExcersise(1, 1, Self::generate_random_excersise())
+        Message::SelectedSubExcersise(1, Self::generate_random_excersise())
     }
 
     fn select_excersise() -> Message {
@@ -64,7 +64,7 @@ impl Exercise for Excersise1 {
 
 
 // From < number to >
-fn generate_excersise_type1() -> ExcersiseData {
+fn generate_excersise_type1() -> ExersiseData {
     let excersise_type = rand::thread_rng().gen_range(0..=2);
     let mut right_answer = "".into();
     let symbol_size: &str;
@@ -140,7 +140,7 @@ format!("Каждый символ в кодировке {}. Миша напис
 Ученик вычеркнул из списка один из наборов символов. Заодно он вычеркнул ставшие лишними запятые и пробелы - два пробела не должны идти подряд.
 При этом размер нового предложения в данной кодировке оказался на {} байтов меньше, чем размер исходного предложения. Напишите в ответе вычеркнутый набор символов.",
     symbol_size, symbols_string, reduced_size);
-    ExcersiseData {
+    ExersiseData {
         title,
         right_answer,
         input_field_text: "".into(),
@@ -148,7 +148,7 @@ format!("Каждый символ в кодировке {}. Миша напис
     }
 }
 
-fn generate_excersise_type2() -> ExcersiseData {
+fn generate_excersise_type2() -> ExersiseData {
     let excersise_type = rand::thread_rng().gen_range(0..=2);
     let char_size_description: &str;
     let char_size;
@@ -181,7 +181,7 @@ fn generate_excersise_type2() -> ExcersiseData {
     let title = 
 format!("Каждый символ в кодировке {}. Текст, набранный на компьютере, содержит {} страниц, каждая по {} строк, а каждая строка состоит из {} символов.
 Определите информационный объём текста в Кбайтах. Ответ округлите до целых.", char_size_description, pages_count, lines_count, char_count);
-    ExcersiseData {
+    ExersiseData {
         title,
         right_answer,
         input_field_text: "".into(),

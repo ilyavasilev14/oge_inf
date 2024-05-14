@@ -1,6 +1,6 @@
 use iced::widget::{button, column, container, scrollable, text, Image};
 use rand::Rng;
-use crate::{ExcersiseData, ExcersiseState, Message};
+use crate::{ExersiseData, ExcersiseState, Message};
 use super::Exercise;
 
 
@@ -27,7 +27,7 @@ impl Exercise for Excersise10 {
         cont
     }
 
-    fn generate_random_excersise() -> ExcersiseData {
+    fn generate_random_excersise() -> ExersiseData {
         let number_2 = rand::thread_rng().gen_range(5..=40);
         let mut max_number = number_2;
         let mut number_8 = rand::thread_rng().gen_range(5..=40);
@@ -52,7 +52,7 @@ impl Exercise for Excersise10 {
         let title = format!(
 "Среди приведенных ниже трех чисел, записанных в различных системах счисления, найдите максимальное и запишите его в ответе в десятичной системе счисления. В ответе запишите только число, основание системы счисления указывать не нужно.\n
 {}(16)\n{}(8)\n{}(2)", num_16_converted, num_8_converted, num_2_converted);
-        ExcersiseData {
+        ExersiseData {
             title,
             right_answer: max_number.to_string(),
             input_field_text: "".into(),
@@ -61,7 +61,7 @@ impl Exercise for Excersise10 {
     }
 
     fn select_subexcersise() -> Message {
-        Message::SelectedSubExcersise(10, 1, Self::generate_random_excersise())
+        Message::SelectedSubExcersise(10, Self::generate_random_excersise())
     }
 
     fn select_excersise() -> Message {

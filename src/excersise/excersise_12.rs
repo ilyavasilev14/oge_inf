@@ -1,8 +1,8 @@
-use std::fs::{self, File};
+use std::fs;
 use directories::UserDirs;
 use iced::widget::{button, column, container, scrollable, text, Image};
 use rand::{Rng, distributions::{Alphanumeric, DistString}};
-use crate::{Message, ExcersiseData, ExcersiseState};
+use crate::{Message, ExersiseData, ExcersiseState};
 use super::Exercise;
 use std::process::Command;
 use std::path::PathBuf;
@@ -30,7 +30,7 @@ impl Exercise for Excersise12 {
         cont
     }
 
-    fn generate_random_excersise() -> ExcersiseData {
+    fn generate_random_excersise() -> ExersiseData {
         //let ex_type = rand::thread_rng().gen_range(0..4);
         let ex_type = rand::thread_rng().gen_range(1..=2);
         match ex_type {
@@ -41,7 +41,7 @@ impl Exercise for Excersise12 {
 
     fn select_subexcersise() -> Message {
         println!("select_subexcersise");
-        Message::SelectedSubExcersise(12, 1, Self::generate_random_excersise())
+        Message::SelectedSubExcersise(12, Self::generate_random_excersise())
     }
 
     fn select_excersise() -> Message {
@@ -59,7 +59,7 @@ impl Exercise for Excersise12 {
 
 
 
-fn generate_excersise_type1() -> ExcersiseData {
+fn generate_excersise_type1() -> ExersiseData {
     let required_file_extention = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(2..=5));
 
     let required_dir_name = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(4..=8));
@@ -118,7 +118,7 @@ fn generate_excersise_type1() -> ExcersiseData {
 {} является подкаталогом \"ОГЭ\", который находится в домашнем каталоге.", 
     required_file_extention, required_dir_name, required_dir_name);
 
-    ExcersiseData {
+    ExersiseData {
         title,
         right_answer: required_dir_required_file_count.to_string(),
         input_field_text: "".into(),
@@ -126,7 +126,7 @@ fn generate_excersise_type1() -> ExcersiseData {
     }
 }
 
-fn generate_excersise_type2() -> ExcersiseData {
+fn generate_excersise_type2() -> ExersiseData {
     let required_file_extention = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(2..=5));
 
     let required_dir_name = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(4..=8));
@@ -182,10 +182,10 @@ fn generate_excersise_type2() -> ExcersiseData {
             let file_name = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(4..=8));
             let file_name = file_name + "." + &required_file_extention;
 
-            dbg!(&file_name);
+            //dbg!(&file_name);
             let path = required_dir_path.join(file_name.clone());
-            let file = create_file(path.clone());
-            dbg!(required_dir_path.join(file_name.clone()));
+            create_file(path.clone());
+            //dbg!(required_dir_path.join(file_name.clone()));
             let size = rand::thread_rng().gen_range(required_file_size_bytes + 3..=3000);
             set_file_size(path, size);
         }
@@ -198,7 +198,7 @@ fn generate_excersise_type2() -> ExcersiseData {
 {} является подкаталогом \"ОГЭ\", который находится в домашнем каталоге.", 
     required_file_extention, required_file_size_bytes, required_dir_name, required_dir_name);
 
-    ExcersiseData {
+    ExersiseData {
         title,
         right_answer: required_dir_required_file_size_count.to_string(),
         input_field_text: "".into(),

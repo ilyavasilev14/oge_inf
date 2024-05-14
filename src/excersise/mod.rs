@@ -1,7 +1,7 @@
 use iced::{widget::{container, column, button, text, Image, text_input}, alignment::{Horizontal, Vertical}, Length, Alignment};
 use iced_aw::Modal;
 use rand::{Rng, distributions::{Distribution, Standard}};
-use crate::{Message, ExcersiseData, ExcersiseState};
+use crate::{Message, ExersiseData, ExcersiseState};
 
 pub mod excersise_1;
 pub mod excersise_2;
@@ -11,6 +11,7 @@ pub mod excersise_6;
 pub mod excersise_7;
 pub mod excersise_10;
 pub mod excersise_12;
+pub mod excersise_14;
 pub mod excersise_15;
 
 pub trait Exercise {
@@ -47,7 +48,7 @@ pub trait Exercise {
     }
 
     // Практика
-    fn practice_view<'a>(excersise_data: Option<ExcersiseData>) -> iced::Element<'a, Message> {
+    fn practice_view<'a>(excersise_data: Option<ExersiseData>) -> iced::Element<'a, Message> {
         println!("practice view");
         if let Some(excersise_data) = excersise_data {
             let excersise_container = container(
@@ -82,14 +83,25 @@ pub trait Exercise {
                 ExcersiseState::NotDone => underlay.into(),
                 ExcersiseState::WrongAnswer => 
                     Modal::new(true, underlay, move ||
-                        column![
-                            text(format!("Задание решено неверно!\nПравильный ответ: {}", excersise_data.right_answer))
-                                .size(48).horizontal_alignment(Horizontal::Center),
-                            button(text("Новое задание").horizontal_alignment(Horizontal::Center).size(48))
-                                .on_press(Self::new_excersise(false)).width(500),
-                        ]
-                        .align_items(Alignment::Center)
-                        .spacing(15)
+                        if Self::show_right_answer() {
+                            column![
+                                text(format!("Задание решено неверно!\nПравильный ответ: {}", excersise_data.right_answer))
+                                    .size(48).horizontal_alignment(Horizontal::Center),
+                                    button(text("Новое задание").horizontal_alignment(Horizontal::Center).size(48))
+                                        .on_press(Self::new_excersise(false)).width(500),
+                            ]
+                                .align_items(Alignment::Center)
+                                .spacing(15)
+                        } else {
+                            column![
+                                text("Задание решено неверно!")
+                                    .size(48).horizontal_alignment(Horizontal::Center),
+                                    button(text("Новое задание").horizontal_alignment(Horizontal::Center).size(48))
+                                        .on_press(Self::new_excersise(false)).width(500),
+                            ]
+                                .align_items(Alignment::Center)
+                                .spacing(15)
+                        }
                         .into())
                     .into(),
                 ExcersiseState::RightAnswer => 
@@ -121,7 +133,7 @@ pub trait Exercise {
 
 
     // Создание случайного задания
-    fn generate_random_excersise() -> ExcersiseData;
+    fn generate_random_excersise() -> ExersiseData;
     // Обучение
     fn learning_view<'a>() -> iced::Element<'a, Message>;
 
@@ -133,6 +145,10 @@ pub trait Exercise {
     fn select_learning() -> Message;
     fn select_excersise() -> Message;
     fn excersise_number() -> u8;
+
+    fn show_right_answer() -> bool {
+        true
+    }
 
     fn new_excersise(done_correctly: bool) -> Message { 
         match done_correctly {

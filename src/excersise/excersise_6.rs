@@ -1,6 +1,6 @@
 use iced::widget::{scrollable, text, container, column, button, Image};
 use rand::{Rng, distributions::{Distribution, Standard}};
-use crate::{Message, ExcersiseData, ExcersiseState};
+use crate::{Message, ExersiseData, ExcersiseState};
 use super::Exercise;
 
 
@@ -31,7 +31,7 @@ impl Exercise for Excersise6 {
         cont
     }
 
-    fn generate_random_excersise() -> ExcersiseData {
+    fn generate_random_excersise() -> ExersiseData {
         //let ex_type = rand::thread_rng().gen_range(0..4);
         let ex_type = rand::thread_rng().gen_range(1..=2);
         match ex_type {
@@ -41,7 +41,7 @@ impl Exercise for Excersise6 {
     }
 
     fn select_subexcersise() -> Message {
-        Message::SelectedSubExcersise(6, 1, Self::generate_random_excersise())
+        Message::SelectedSubExcersise(6, Self::generate_random_excersise())
     }
 
     fn select_excersise() -> Message {
@@ -63,7 +63,7 @@ impl Exercise for Excersise6 {
 
 
 
-fn generate_excersise_type1() -> ExcersiseData {
+fn generate_excersise_type1() -> ExersiseData {
     let random_variant: ExcersiseVariations = rand::random(); 
     let s: i32;
     let t: i32;
@@ -189,7 +189,7 @@ fn generate_excersise_type1() -> ExcersiseData {
 {}
 Сколько было запусков, при которых программа напечатала {}?", 
         program_text, number_sets_list_string, requested_output);
-    return ExcersiseData {
+    return ExersiseData {
         title: full_title,
         right_answer: answer.to_string(),
         input_field_text: String::new(),
@@ -197,7 +197,7 @@ fn generate_excersise_type1() -> ExcersiseData {
     };
 } // generate_excersise_type2 is AND excersise(this function is OR)
 
-fn generate_excersise_type2() -> ExcersiseData {
+fn generate_excersise_type2() -> ExersiseData {
     let random_variant: ExcersiseVariations = rand::random(); 
     let s: i32;
     let t: i32;
@@ -324,7 +324,7 @@ fn generate_excersise_type2() -> ExcersiseData {
 Сколько было запусков, при которых программа напечатала {}?", 
         program_text, number_sets_list_string, requested_output);
 
-    return ExcersiseData {
+    return ExersiseData {
         title: full_title,
         right_answer: answer.to_string(),
         input_field_text: String::new(),

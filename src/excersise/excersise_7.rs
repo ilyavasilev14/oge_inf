@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use iced::widget::{button, column, container, scrollable, text, Image};
 use rand::{Rng, distributions::{Alphanumeric, DistString}, seq::SliceRandom};
-use crate::{Message, ExcersiseData, ExcersiseState};
+use crate::{Message, ExersiseData, ExcersiseState};
 use super::Exercise;
 
 
@@ -31,7 +31,7 @@ impl Exercise for Excersise7 {
         cont
     }
 
-    fn generate_random_excersise() -> ExcersiseData {
+    fn generate_random_excersise() -> ExersiseData {
         //let ex_type = rand::thread_rng().gen_range(0..4);
         let ex_type = rand::thread_rng().gen_range(1..=2);
         match ex_type {
@@ -41,7 +41,7 @@ impl Exercise for Excersise7 {
     }
 
     fn select_subexcersise() -> Message {
-        Message::SelectedSubExcersise(7, 1, Self::generate_random_excersise())
+        Message::SelectedSubExcersise(7, Self::generate_random_excersise())
     }
 
     fn select_excersise() -> Message {
@@ -59,7 +59,7 @@ impl Exercise for Excersise7 {
 
 
 
-fn generate_excersise_type1() -> ExcersiseData {
+fn generate_excersise_type1() -> ExersiseData {
     let protocol = if rand::thread_rng().gen::<bool>() {
         "ftp"
     } else {
@@ -148,7 +148,7 @@ fn generate_excersise_type1() -> ExcersiseData {
     letter_val["Е"], letter_val["Ж"]);
 
 
-    ExcersiseData { 
+    ExersiseData { 
         title, 
         right_answer: answer,
         input_field_text: "".into(), 
@@ -156,7 +156,7 @@ fn generate_excersise_type1() -> ExcersiseData {
     }
 } // http/ftp
 
-fn generate_excersise_type2() -> ExcersiseData {
+fn generate_excersise_type2() -> ExersiseData {
     let mailbox = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(4..=10));
 
     let at = "@";
@@ -212,7 +212,7 @@ fn generate_excersise_type2() -> ExcersiseData {
     server_name, server_name_ending, mailbox, letter_val["А"], letter_val["Б"], letter_val["В"], letter_val["Г"]);
 
 
-    ExcersiseData { 
+    ExersiseData { 
         title, 
         right_answer: answer,
         input_field_text: "".into(), 

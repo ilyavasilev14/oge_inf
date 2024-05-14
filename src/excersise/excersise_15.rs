@@ -2,7 +2,7 @@ use iced::{widget::{container, scrollable, column, button, text, Image}, alignme
 use iced_aw::Modal;
 use rand::{Rng, seq::SliceRandom};
 use serde::{Serialize, Deserialize};
-use crate::{Message, ExcersiseData, ExcersiseState};
+use crate::{Message, ExersiseData, ExcersiseState};
 use super::Exercise;
 
 
@@ -29,7 +29,7 @@ impl Exercise for Excersise15 {
         cont
     }
 
-    fn practice_view<'a>(excersise_data: Option<ExcersiseData>) -> iced::Element<'a, Message> {
+    fn practice_view<'a>(excersise_data: Option<ExersiseData>) -> iced::Element<'a, Message> {
         println!("practice view");
         if let Some(excersise_data) = excersise_data {
             let answer: Excersise15Answer = toml::from_str(&excersise_data.right_answer).unwrap();
@@ -107,7 +107,7 @@ impl Exercise for Excersise15 {
         }
     }
 
-    fn generate_random_excersise() -> ExcersiseData {
+    fn generate_random_excersise() -> ExersiseData {
         let ex_type = rand::thread_rng().gen_range(1..=2);
         match ex_type {
             1 => generate_excersise_type1(),
@@ -116,7 +116,7 @@ impl Exercise for Excersise15 {
     }
 
     fn select_subexcersise() -> Message {
-        Message::SelectedSubExcersise(15, 1, Self::generate_random_excersise())
+        Message::SelectedSubExcersise(15, Self::generate_random_excersise())
     }
 
     fn select_excersise() -> Message {
@@ -139,7 +139,7 @@ impl Exercise for Excersise15 {
 
 // Max number that may be divided by x
 // Напишите программу, которая в последовательности натуральных чисел определяет максимальное число, кратное 5. Программа получает на вход количество чисел в последовательности, а затем сами числа. В последовательности всегда имеется число, кратное 5. Количество чисел не превышает 1000. Введенные числа не превышают 30 000. Программа должна вывести одно число  — максимальное число, кратное 5.
-fn generate_excersise_type1() -> ExcersiseData {
+fn generate_excersise_type1() -> ExersiseData {
     let example = Excersise15Data::new_type1();
 
     let title = format!(
@@ -153,7 +153,7 @@ fn generate_excersise_type1() -> ExcersiseData {
     let answer_str = toml::to_string(&answer).unwrap();
     dbg!(&answer_str);
 
-    ExcersiseData { 
+    ExersiseData { 
         title,
         right_answer: answer_str,
         input_field_text: "".into(), 
@@ -162,7 +162,7 @@ fn generate_excersise_type1() -> ExcersiseData {
 }
 
 // Sum of numbers that may be divided by x
-fn generate_excersise_type2() -> ExcersiseData {
+fn generate_excersise_type2() -> ExersiseData {
     let example = Excersise15Data::new_type2();
 
     let title = format!(
@@ -177,7 +177,7 @@ fn generate_excersise_type2() -> ExcersiseData {
     println!("type 2");
     dbg!(&answer_str);
 
-    ExcersiseData { 
+    ExersiseData { 
         title,
         right_answer: answer_str,
         input_field_text: "".into(), 

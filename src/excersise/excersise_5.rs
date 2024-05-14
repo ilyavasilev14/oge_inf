@@ -1,6 +1,6 @@
 use iced::widget::{button, column, container, scrollable, text, Image};
 use rand::Rng;
-use crate::{Message, ExcersiseData, ExcersiseState};
+use crate::{Message, ExersiseData, ExcersiseState};
 use super::Exercise;
 
 
@@ -27,12 +27,12 @@ impl Exercise for Excersise5 {
         cont
     }
 
-    fn generate_random_excersise() -> ExcersiseData {
+    fn generate_random_excersise() -> ExersiseData {
         generate_excersise_type1()
     }
 
     fn select_subexcersise() -> Message {
-        Message::SelectedSubExcersise(5, 1, Self::generate_random_excersise())
+        Message::SelectedSubExcersise(5, Self::generate_random_excersise())
     }
 
     fn select_excersise() -> Message {
@@ -51,7 +51,7 @@ impl Exercise for Excersise5 {
 
 
 // From < number to >
-fn generate_excersise_type1() -> ExcersiseData {
+fn generate_excersise_type1() -> ExersiseData {
     let base_number = rand::thread_rng().gen_range(1..=150);
     let plus_number = rand::thread_rng().gen_range(1..=25);
     let rounded_half_plus = ((plus_number / 2 + 1) as f32).round();
@@ -90,7 +90,7 @@ fn generate_excersise_type1() -> ExcersiseData {
 
 Выполняя первую из них, Альфа увеличивает число на экране на {}, а выполняя вторую, умножает это число на b. Программа для исполнителя Альфа - это последовательность номеров команд. Известно, что программа {} переводит число {} в число {}. Определите значение b.", plus_number, plus_number, program, base_number, value);
 
-    ExcersiseData {
+    ExersiseData {
         title,
         right_answer: multiply_number.to_string(),
         input_field_text: "".into(),
@@ -99,7 +99,7 @@ fn generate_excersise_type1() -> ExcersiseData {
 }
 
 // From > number to <
-fn generate_excersise_type2() -> ExcersiseData {
+fn generate_excersise_type2() -> ExersiseData {
     let mut base_number = rand::thread_rng().gen_range(100..=250);
     if base_number % 2 != 0 {
         base_number = rand::thread_rng().gen_range(100..=250);
@@ -159,7 +159,7 @@ fn generate_excersise_type2() -> ExcersiseData {
 
 Выполняя первую из них, Альфа уменьшает число на экране на {}, а выполняя вторую, делит это число на b. Программа для исполнителя Альфа - это последовательность номеров команд. Известно, что программа {} переводит число {} в число {}. Определите значение b.", minus_number, minus_number, program, base_number, value);
 
-    ExcersiseData {
+    ExersiseData {
         title,
         right_answer: division_number.to_string(),
         input_field_text: "".into(),
