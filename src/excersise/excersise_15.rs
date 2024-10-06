@@ -1,8 +1,7 @@
-use iced::{widget::{container, scrollable, column, button, text, Image}, alignment::{Horizontal, Vertical}, Length, Alignment};
-use iced_aw::Modal;
+use iced::{alignment::Horizontal, widget::{button, column, container, scrollable, text, Image}, Alignment, Length};
 use rand::{Rng, seq::SliceRandom};
 use serde::{Serialize, Deserialize};
-use crate::{Message, ExersiseData, ExcersiseState};
+use crate::{Message, ExerciseData, ExcerciseState};
 use super::Exercise;
 
 
@@ -12,8 +11,7 @@ impl Exercise for Excersise15 {
     fn learning_view<'a>() -> iced::Element<'a, Message> {
         let text: iced::Element<'a, Message> = text("Обучение для этого типа заданий ещё в разработке.")
             .size(Self::text_size())
-            .vertical_alignment(iced::alignment::Vertical::Center)
-            .horizontal_alignment(iced::alignment::Horizontal::Center)
+            .center()
             .into();
 
 
@@ -29,35 +27,32 @@ impl Exercise for Excersise15 {
         cont
     }
 
-    fn practice_view<'a>(excersise_data: Option<ExersiseData>) -> iced::Element<'a, Message> {
+    fn practice_view<'a>(excersise_data: Option<ExerciseData>) -> iced::Element<'a, Message> {
         println!("practice view");
         if let Some(excersise_data) = excersise_data {
             let answer: Excersise15Answer = toml::from_str(&excersise_data.right_answer).unwrap();
 
             let excersise_container = container(
                 column![
-                    text(excersise_data.title).size(Self::text_size()).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center)
+                    text(excersise_data.title).size(Self::text_size()).center()
                         .width(Length::Fill),
 
                     button(text("Изменить решение")
                         .size(48)
-                        .horizontal_alignment(Horizontal::Center)
-                        .vertical_alignment(Vertical::Center))
+                        .center())
                         .width(Length::Fixed(500.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::OpenSolutionFile),
 
                     button(text("Проверить ответ")
                         .size(48)
-                        .horizontal_alignment(Horizontal::Center)
-                        .vertical_alignment(Vertical::Center))
+                        .center())
                         .width(Length::Fixed(500.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::PythonCheckAnswer(answer.input, answer.output.clone())),
-                ].align_items(Alignment::Center).spacing(15)
+                ].align_x(Alignment::Center).spacing(15)
             )
-                .center_y()
-                .center_x()
+                .center(Length::Fill)
                 .width(Length::Fill)
                 .height(Length::Fill);
 
@@ -67,47 +62,39 @@ impl Exercise for Excersise15 {
             ]);
 
             match excersise_data.state {
-                ExcersiseState::NotDone => underlay.into(),
-                ExcersiseState::WrongAnswer => 
-                    Modal::new(true, underlay, move ||
-                        column![
-                            text(format!("Задание решено неверно!\nОжидаемый результат: {}", answer.output))
-                                .size(48).horizontal_alignment(Horizontal::Center),
-                            button(text("Новое задание").horizontal_alignment(Horizontal::Center).size(48))
-                                .on_press(Self::new_excersise(false)).width(500),
-                        ]
-                        .align_items(Alignment::Center)
-                        .spacing(15)
-                        .into())
-                    .into(),
-                ExcersiseState::RightAnswer => 
-                    Modal::new(true, underlay, || column![
-                        text("Задание решено верно!").size(48),
-                        button(text("Новое задание").horizontal_alignment(Horizontal::Center).size(48))
+                ExcerciseState::NotDone => underlay.into(),
+                ExcerciseState::WrongAnswer => 
+                    container(column![
+                        text("Задание решено неверно!")
+                            .size(48).align_x(Horizontal::Center),
+                        button(text("Новое задание").align_x(Horizontal::Center).size(48))
+                            .on_press(Self::new_excersise(false)).width(500),
+                    ]
+                    .align_x(Alignment::Center)
+                    .spacing(15)).center(Length::Fill).into(),
+                ExcerciseState::RightAnswer => 
+                    container(column![
+                        text("Задание решено верно!").size(48).align_x(Horizontal::Center),
+                        button(text("Новое задание").align_x(Horizontal::Center).size(48))
                             .on_press(Self::new_excersise(true)).width(500),
                     ]
-                    .align_items(Alignment::Center)
-                    .spacing(15)
-                    .into())
-                    .into(),
-                ExcersiseState::NanAnswer =>
-                    Modal::new(true, underlay, || 
-                        column![
-                            text("Введите число в ответ задания").size(48),
-                            button(text("Исправить ответ").horizontal_alignment(Horizontal::Center).size(48))
-                                .on_press(Message::SetState(ExcersiseState::NotDone)).width(500)
-                        ]
-                        .align_items(Alignment::Center)
-                        .spacing(15)
-                        .into())
-                    .into(),
+                    .align_x(Alignment::Center)
+                    .spacing(15)).center(Length::Fill).into(),
+                ExcerciseState::NanAnswer =>
+                    container(column![
+                        text("Введите число в ответ задания").size(48),
+                        button(text("Исправить ответ").align_x(Horizontal::Center).size(48))
+                            .on_press(Message::SetState(ExcerciseState::NotDone)).width(500)
+                    ]
+                    .align_x(Alignment::Center)
+                    .spacing(15)).center(Length::Fill).into(),
             }
         } else {
             text("NO EXCERSISE DATA").into()
         }
     }
 
-    fn generate_random_excersise() -> ExersiseData {
+    fn generate_random_excersise() -> ExerciseData {
         let ex_type = rand::thread_rng().gen_range(1..=2);
         match ex_type {
             1 => generate_excersise_type1(),
@@ -139,7 +126,7 @@ impl Exercise for Excersise15 {
 
 // Max number that may be divided by x
 // Напишите программу, которая в последовательности натуральных чисел определяет максимальное число, кратное 5. Программа получает на вход количество чисел в последовательности, а затем сами числа. В последовательности всегда имеется число, кратное 5. Количество чисел не превышает 1000. Введенные числа не превышают 30 000. Программа должна вывести одно число  — максимальное число, кратное 5.
-fn generate_excersise_type1() -> ExersiseData {
+fn generate_excersise_type1() -> ExerciseData {
     let example = Excersise15Data::new_type1();
 
     let title = format!(
@@ -153,16 +140,17 @@ fn generate_excersise_type1() -> ExersiseData {
     let answer_str = toml::to_string(&answer).unwrap();
     dbg!(&answer_str);
 
-    ExersiseData { 
+    ExerciseData { 
         title,
         right_answer: answer_str,
         input_field_text: "".into(), 
-        state: ExcersiseState::NotDone
+        state: ExcerciseState::NotDone,
+        additional_data: Vec::new(),
     }
 }
 
 // Sum of numbers that may be divided by x
-fn generate_excersise_type2() -> ExersiseData {
+fn generate_excersise_type2() -> ExerciseData {
     let example = Excersise15Data::new_type2();
 
     let title = format!(
@@ -177,11 +165,12 @@ fn generate_excersise_type2() -> ExersiseData {
     println!("type 2");
     dbg!(&answer_str);
 
-    ExersiseData { 
+    ExerciseData { 
         title,
         right_answer: answer_str,
         input_field_text: "".into(), 
-        state: ExcersiseState::NotDone
+        state: ExcerciseState::NotDone,
+        additional_data: Vec::new(),
     }
 }
 

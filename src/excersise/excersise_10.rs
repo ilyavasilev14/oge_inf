@@ -1,6 +1,6 @@
 use iced::widget::{button, column, container, scrollable, text, Image};
 use rand::Rng;
-use crate::{ExersiseData, ExcersiseState, Message};
+use crate::{ExerciseData, ExcerciseState, Message};
 use super::Exercise;
 
 
@@ -10,8 +10,7 @@ impl Exercise for Excersise10 {
     fn learning_view<'a>() -> iced::Element<'a, Message> {
          let text: iced::Element<'a, Message> = text("Обучение для этого типа заданий ещё в разработке.")
             .size(Self::text_size())
-            .vertical_alignment(iced::alignment::Vertical::Center)
-            .horizontal_alignment(iced::alignment::Horizontal::Center)
+            .center()
             .into();
 
 
@@ -27,7 +26,7 @@ impl Exercise for Excersise10 {
         cont
     }
 
-    fn generate_random_excersise() -> ExersiseData {
+    fn generate_random_excersise() -> ExerciseData {
         let number_2 = rand::thread_rng().gen_range(5..=40);
         let mut max_number = number_2;
         let mut number_8 = rand::thread_rng().gen_range(5..=40);
@@ -52,11 +51,12 @@ impl Exercise for Excersise10 {
         let title = format!(
 "Среди приведенных ниже трех чисел, записанных в различных системах счисления, найдите максимальное и запишите его в ответе в десятичной системе счисления. В ответе запишите только число, основание системы счисления указывать не нужно.\n
 {}(16)\n{}(8)\n{}(2)", num_16_converted, num_8_converted, num_2_converted);
-        ExersiseData {
+        ExerciseData {
             title,
             right_answer: max_number.to_string(),
             input_field_text: "".into(),
-            state: ExcersiseState::NotDone,
+            state: ExcerciseState::NotDone,
+            additional_data: Vec::new(),
         }
     }
 

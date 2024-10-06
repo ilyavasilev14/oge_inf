@@ -1,6 +1,6 @@
 use iced::widget::{button, column, container, scrollable, text, Image};
 use rand::{Rng, distributions::{Distribution, Standard}};
-use crate::{Message, ExersiseData, ExcersiseState};
+use crate::{Message, ExerciseData, ExcerciseState};
 use super::Exercise;
 
 
@@ -19,8 +19,7 @@ impl Exercise for Excersise3 {
 Преобразуем его: \"(x > 4) ИЛИ (x <= 3)\"
 Найдём то число, при котором это высказывание ЛОЖНО. Если в выражении используется \"ИЛИ\", то это значит, что число подходит тогда, когда хотя бы одно из условий является верным. Тут подходит число 4, так как оно не больше 4 и не больше или рано 3.")
             .size(Self::text_size())
-            .vertical_alignment(iced::alignment::Vertical::Center)
-            .horizontal_alignment(iced::alignment::Horizontal::Center)
+            .center()
             .into();
 
 
@@ -36,7 +35,7 @@ impl Exercise for Excersise3 {
         cont
     }
 
-    fn generate_random_excersise() -> ExersiseData {
+    fn generate_random_excersise() -> ExerciseData {
         //let ex_type = rand::thread_rng().gen_range(0..4);
         let ex_type = rand::thread_rng().gen_range(1..=2);
         match ex_type {
@@ -65,53 +64,55 @@ impl Exercise for Excersise3 {
 
 
 // Answer: exact number
-fn generate_excersise_type1() -> ExersiseData {
-     let or_excersise: bool = rand::random(); // Упражнение с ИЛИ?
-     let number_in_not = rand::thread_rng().gen_range(0..=150); // Число, перед которым стоит НЕ
-     let number_in_normal = number_in_not + 1; // Число, перед которым нет НЕ
+fn generate_excersise_type1() -> ExerciseData {
+    let or_excersise: bool = rand::random(); // Упражнение с ИЛИ?
+    let number_in_not = rand::thread_rng().gen_range(0..=150); // Число, перед которым стоит НЕ
+    let number_in_normal = number_in_not + 1; // Число, перед которым нет НЕ
 
-     let first_is_not: bool = rand::random(); // Стоит ли число с НЕ первым? 
-     let title;
+    let first_is_not: bool = rand::random(); // Стоит ли число с НЕ первым? 
+    let title;
 
-     if or_excersise {
-         if first_is_not {
-             title =
-                 format!("Напишите целое число X, для которого ложно высказывание:\nНЕ (X > {}) ИЛИ (X > {})", number_in_not, number_in_normal);
-         } else {
-             title =
-                 format!("Напишите целое число X, для которого ложно высказывание:\n(X > {}) ИЛИ НЕ (X > {})", number_in_normal, number_in_not);
-         }
+    if or_excersise {
+        if first_is_not {
+            title =
+                format!("Напишите целое число X, для которого ложно высказывание:\nНЕ (X > {}) ИЛИ (X > {})", number_in_not, number_in_normal);
+        } else {
+            title =
+                format!("Напишите целое число X, для которого ложно высказывание:\n(X > {}) ИЛИ НЕ (X > {})", number_in_normal, number_in_not);
+        }
 
-         let data = ExersiseData {
-             title,
-             right_answer: number_in_normal.to_string(),
-             input_field_text: "".into(),
-             state: ExcersiseState::NotDone
-         };
+        let data = ExerciseData {
+            title,
+            right_answer: number_in_normal.to_string(),
+            input_field_text: "".into(),
+            state: ExcerciseState::NotDone,
+            additional_data: Vec::new(),
+        };
 
-         data
-     } else {
-         if first_is_not {
-             title =
-                 format!("Напишите целое число X, для которого истинно высказывание:\nНЕ (X < {}) И (X < {})", number_in_not, number_in_normal);
-         } else {
-             title =
-                 format!("Напишите целое число X, для которого истинно высказывание:\n(X < {}) И НЕ (X < {})", number_in_normal, number_in_not);
-         }
+        data
+    } else {
+        if first_is_not {
+            title =
+                format!("Напишите целое число X, для которого истинно высказывание:\nНЕ (X < {}) И (X < {})", number_in_not, number_in_normal);
+        } else {
+            title =
+                format!("Напишите целое число X, для которого истинно высказывание:\n(X < {}) И НЕ (X < {})", number_in_normal, number_in_not);
+        }
 
-         let data = ExersiseData {
-             title,
-             right_answer: number_in_not.to_string(),
-             input_field_text: "".into(),
-             state: ExcersiseState::NotDone
-         };
+        let data = ExerciseData {
+            title,
+            right_answer: number_in_not.to_string(),
+            input_field_text: "".into(),
+            state: ExcerciseState::NotDone,
+            additional_data: Vec::new(),
+        };
 
-         data
-     }
+        data
+    }
 }
 
 // Answer: max value
-fn generate_excersise_type2() -> ExersiseData {
+fn generate_excersise_type2() -> ExerciseData {
     let random_variant: Type2Variations = rand::random(); 
     let right_answer;
     let title: String;
@@ -160,11 +161,12 @@ fn generate_excersise_type2() -> ExersiseData {
         },
     }
 
-    let data = ExersiseData {
+    let data = ExerciseData {
         title,
         right_answer: right_answer.to_string(),
         input_field_text: "".into(),
-        state: ExcersiseState::NotDone
+        state: ExcerciseState::NotDone,
+        additional_data: Vec::new(),
     };
 
     return data;

@@ -1,10 +1,9 @@
 use directories::UserDirs;
 use edit_xlsx::{WorkSheetCol, Workbook, Write};
-use iced::{alignment::{Horizontal, Vertical}, widget::{button, column, container, scrollable, text, Image}, Alignment, Length};
-use iced_aw::Modal;
+use iced::{alignment::Horizontal, widget::{button, column, container, scrollable, text, Image}, Alignment, Length};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use crate::{Message, ExersiseData, ExcersiseState};
+use crate::{Message, ExerciseData, ExcerciseState};
 use super::Exercise;
 use std::fs;
 
@@ -12,27 +11,22 @@ use std::fs;
 pub struct Excersise14 { }
 
 impl Exercise for Excersise14 {
-    fn practice_view<'a>(excersise_data: Option<ExersiseData>) -> iced::Element<'a, Message> {
-        println!("practice view");
+    fn practice_view<'a>(excersise_data: Option<ExerciseData>) -> iced::Element<'a, Message> {
         if let Some(excersise_data) = excersise_data {
             let excersise_container = container(
                 column![
-                    text(excersise_data.title).size(Self::text_size()).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center)
+                    text(excersise_data.title).size(Self::text_size()).center()
                         .width(Length::Fill),
 
                     button(text("Проверить ответ")
                         .size(48)
-                        .horizontal_alignment(Horizontal::Center)
-                        .vertical_alignment(Vertical::Center))
+                        .center())
                         .width(Length::Fixed(500.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::Excersise14CheckAnswer),
-                ].align_items(Alignment::Center).spacing(15)
+                ].align_x(Alignment::Center).spacing(15)
             )
-                .center_y()
-                .center_x()
-                .width(Length::Fill)
-                .height(Length::Fill);
+                .center(Length::Fill);
 
             let underlay = container(column![
                 button(Image::new("back_arrow.png").width(100).height(100)).on_press(Self::select_excersise()),
@@ -40,40 +34,32 @@ impl Exercise for Excersise14 {
             ]);
 
             match excersise_data.state {
-                ExcersiseState::NotDone => underlay.into(),
-                ExcersiseState::WrongAnswer => 
-                    Modal::new(true, underlay, move ||
-                        column![
-                            text("Задание решено неверно!")
-                                .size(48).horizontal_alignment(Horizontal::Center),
-                            button(text("Новое задание").horizontal_alignment(Horizontal::Center).size(48))
-                                .on_press(Self::new_excersise(false)).width(500),
-                        ]
-                        .align_items(Alignment::Center)
-                        .spacing(15)
-                        .into())
-                    .into(),
-                ExcersiseState::RightAnswer => 
-                    Modal::new(true, underlay, || column![
-                        text("Задание решено верно!").size(48),
-                        button(text("Новое задание").horizontal_alignment(Horizontal::Center).size(48))
+                ExcerciseState::NotDone => underlay.into(),
+                ExcerciseState::WrongAnswer => 
+                    container(column![
+                        text("Задание решено неверно!")
+                            .size(48).align_x(Horizontal::Center),
+                        button(text("Новое задание").align_x(Horizontal::Center).size(48))
+                            .on_press(Self::new_excersise(false)).width(500),
+                    ]
+                    .align_x(Alignment::Center)
+                    .spacing(15)).center(Length::Fill).into(),
+                ExcerciseState::RightAnswer => 
+                    container(column![
+                        text("Задание решено верно!").size(48).align_x(Horizontal::Center),
+                        button(text("Новое задание").align_x(Horizontal::Center).size(48))
                             .on_press(Self::new_excersise(true)).width(500),
                     ]
-                    .align_items(Alignment::Center)
-                    .spacing(15)
-                    .into())
-                    .into(),
-                ExcersiseState::NanAnswer =>
-                    Modal::new(true, underlay, || 
-                        column![
-                            text("Введите число в ответ задания").size(48),
-                            button(text("Исправить ответ").horizontal_alignment(Horizontal::Center).size(48))
-                                .on_press(Message::SetState(ExcersiseState::NotDone)).width(500)
-                        ]
-                        .align_items(Alignment::Center)
-                        .spacing(15)
-                        .into())
-                    .into(),
+                    .align_x(Alignment::Center)
+                    .spacing(15)).center(Length::Fill).into(),
+                ExcerciseState::NanAnswer =>
+                    container(column![
+                        text("Введите число в ответ задания").size(48),
+                        button(text("Исправить ответ").align_x(Horizontal::Center).size(48))
+                            .on_press(Message::SetState(ExcerciseState::NotDone)).width(500)
+                    ]
+                    .align_x(Alignment::Center)
+                    .spacing(15)).center(Length::Fill).into(),
             }
         } else {
             text("NO EXCERSISE DATA").into()
@@ -97,7 +83,7 @@ impl Exercise for Excersise14 {
         cont
     }
 
-    fn generate_random_excersise() -> ExersiseData {
+    fn generate_random_excersise() -> ExerciseData {
         generate_excersise()
     }
 
@@ -129,7 +115,7 @@ impl Exercise for Excersise14 {
 
 
 
-fn generate_excersise() -> ExersiseData {
+fn generate_excersise() -> ExerciseData {
     let mut student_col = vec!["Ученик".into()];
     for i in 1..=1001 {
         student_col.push(format!("Ученик {}", i));
@@ -173,7 +159,7 @@ fn generate_excersise() -> ExersiseData {
         avg_score += *score as f32;
     };
     dbg!(&avg_score);
-    let avg_score: f32 = format!("{:.2}", avg_score / avg_class_scores.len() as f32).parse().unwrap();
+    let avg_score: f32 = ((avg_score / avg_class_scores.len() as f32) * 100.0).round() / 100.0;
     dbg!(&avg_score);
 
     if let Some(user_dirs) = UserDirs::new() {
@@ -222,20 +208,21 @@ fn generate_excersise() -> ExersiseData {
 2. Сколько учеников получили оценку 4 или 5? Ответ запишите в ячейку H3 таблицы.", avg_class).into();
 
     let answer = Exersise14Answer {
-        avg_score,
+        avg_score: avg_score.to_string(),
         four_or_five
     };
 
-    ExersiseData {
+    ExerciseData {
         title,
         right_answer: toml::to_string(&answer).unwrap().into(),
         input_field_text: "".into(),
-        state: ExcersiseState::NotDone,
+        state: ExcerciseState::NotDone,
+        additional_data: Vec::new(),
     }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Exersise14Answer {
-    pub avg_score: f32,
+    pub avg_score: String,
     pub four_or_five: i32
 }

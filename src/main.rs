@@ -1,13 +1,14 @@
+use std::collections::HashMap;
 use std::fs::create_dir;
 use std::process::{Command, Stdio};
 
 use calamine::{Data, Reader, Xlsx};
 use directories::UserDirs;
-use edit_xlsx::{Read, Workbook};
 use excersise::excersise_1::Excersise1;
 use excersise::excersise_10::Excersise10;
 use excersise::excersise_14::Excersise14;
 use excersise::excersise_2::Excersise2;
+use excersise::exercise_4::Excersise4;
 use excersise::Exercise;
 use excersise::excersise_12::Excersise12;
 use excersise::excersise_15::Excersise15;
@@ -17,7 +18,7 @@ use excersise::excersise_6::Excersise6;
 use excersise::excersise_7::Excersise7;
 use iced::alignment::{Horizontal, Vertical};
 use iced::widget::{column, text_input, button, text, container, row};
-use iced::{Alignment, Sandbox, Settings, Length};
+use iced::{Alignment, Length};
 use login::SaveData;
 
 use crate::excersise::excersise_14::Exersise14Answer;
@@ -27,16 +28,17 @@ mod login;
 mod excersise;
 
 fn main() {
-    let mut settings = Settings::default();
-    settings.default_font = Some(include_bytes!("Montserrat-Medium.ttf"));
-    let _ = App::run(settings);
+    let run_result = iced::run("Тренажёр для ОГЭ по информатике", App::update, App::view);
+    if let Err(err) = run_result {
+        dbg!(err);
+    }
 }
 
 struct App {
     login: String, 
     state: AppState,
     save: SaveData,
-    exersise_data: Option<ExersiseData>
+    exersise_data: Option<ExerciseData>
 }
 
 enum AppState {
@@ -48,6 +50,9 @@ enum AppState {
     Excersise3,
     Excersise3Learning,
     Excersise3Practice,
+    Excersise4,
+    Excersise4Learning,
+    Excersise4Practice,
     Excersise5,
     Excersise5Learning,
     Excersise5Practice,
@@ -78,11 +83,11 @@ enum AppState {
 enum Message {
     OpenExcersiseList,
     SelectedExcersise(u8),
-    SelectedSubExcersise(u8, ExersiseData),
+    SelectedSubExcersise(u8, ExerciseData),
     LoginChanged(String),
     ExcersiseTextInput(String),
     CheckAnswer,
-    SetState(ExcersiseState),
+    SetState(ExcerciseState),
     /// u8 is excersise number
     ExcersiseDoneWrong(u8),
     /// u8 is excersise number
@@ -93,21 +98,16 @@ enum Message {
     /// excersise14answer serialized to toml
     Excersise14CheckAnswer,
     SelectedLearningExcersise(i32),
-    CheckExcersise2
 }
 
-impl Sandbox for App {
-    type Message = Message;
-
-    fn new() -> Self {
+impl Default for App {
+    fn default() -> Self {
         Self { login: "".into(), state: AppState::Login, exersise_data: None, save: SaveData::default() }
     }
+}
 
-    fn title(&self) -> String {
-        "Тренажёр для ОГЭ по информатике".into()
-    }
-
-    fn update(&mut self, message: Self::Message) {
+impl App {
+    fn update(&mut self, message: Message) {
         match &message {
             // При нажатии на кнопку входа
             Message::OpenExcersiseList => {
@@ -133,6 +133,9 @@ impl Sandbox for App {
                     },
                     3 => {
                         self.state = AppState::Excersise3Practice;
+                    },
+                    4 => {
+                        self.state = AppState::Excersise4Practice;
                     },
                     5 => {
                         self.state = AppState::Excersise5Practice;
@@ -166,9 +169,9 @@ impl Sandbox for App {
             Message::CheckAnswer => {
                 if let Some(excersise_data) = &mut self.exersise_data {
                     if excersise_data.input_field_text == excersise_data.right_answer {
-                        excersise_data.state = ExcersiseState::RightAnswer;
+                        excersise_data.state = ExcerciseState::RightAnswer;
                     } else {
-                        excersise_data.state = ExcersiseState::WrongAnswer;
+                        excersise_data.state = ExcerciseState::WrongAnswer;
                     }
                 }
             },
@@ -224,9 +227,9 @@ impl Sandbox for App {
                     dbg!(&output_str);
                     dbg!(&expected_output);
                     if output_str == expected_output {
-                        self.exersise_data.as_mut().unwrap().state = ExcersiseState::RightAnswer;
+                        self.exersise_data.as_mut().unwrap().state = ExcerciseState::RightAnswer;
                     } else {
-                        self.exersise_data.as_mut().unwrap().state = ExcersiseState::WrongAnswer;
+                        self.exersise_data.as_mut().unwrap().state = ExcerciseState::WrongAnswer;
                     }
 
                     Command::new("killall")
@@ -260,15 +263,15 @@ impl Sandbox for App {
                                 match avg_number_value {
                                     Data::Int(value) => avg_number = *value as f32,
                                     Data::Float(value) => avg_number = *value as f32,
-                                    _ => return exersise_data.state = ExcersiseState::WrongAnswer
+                                    _ => return exersise_data.state = ExcerciseState::WrongAnswer
                                 }
                                 let avg_number: f32 = format!("{:.2}", avg_number).parse().unwrap();
 
-                                if &avg_number != &answer.avg_score {
-                                    return exersise_data.state = ExcersiseState::WrongAnswer;
+                                if &avg_number != &answer.avg_score.parse::<f32>().unwrap() {
+                                    return exersise_data.state = ExcerciseState::WrongAnswer;
                                 }
                             },
-                            None => return exersise_data.state = ExcersiseState::WrongAnswer,
+                            None => return exersise_data.state = ExcerciseState::WrongAnswer,
                         }
                         let four_or_five_value: Option<&Data> = worksheet.get_value((2, 7));
                         match four_or_five_value {
@@ -277,17 +280,17 @@ impl Sandbox for App {
                                 match four_or_five_value {
                                     Data::Int(value) => four_or_five = *value as i32,
                                     Data::Float(value) => four_or_five = (value.round()).clone() as i32,
-                                    _ => return exersise_data.state = ExcersiseState::WrongAnswer
+                                    _ => return exersise_data.state = ExcerciseState::WrongAnswer
                                 }
 
                                 if &four_or_five != &answer.four_or_five {
-                                    return exersise_data.state = ExcersiseState::WrongAnswer;
+                                    return exersise_data.state = ExcerciseState::WrongAnswer;
                                 }
                             },
-                            None => return exersise_data.state = ExcersiseState::WrongAnswer,
+                            None => return exersise_data.state = ExcerciseState::WrongAnswer,
                         }
                     }
-                    exersise_data.state = ExcersiseState::RightAnswer;
+                    exersise_data.state = ExcerciseState::RightAnswer;
                 }
             },
             Message::SelectedLearningExcersise(excersise_number) => {
@@ -295,6 +298,7 @@ impl Sandbox for App {
                     1 => self.state = AppState::Excersise1Learning,
                     2 => self.state = AppState::Excersise2Learning,
                     3 => self.state = AppState::Excersise3Learning,
+                    4 => self.state = AppState::Excersise4Learning,
                     5 => self.state = AppState::Excersise5Learning,
                     6 => self.state = AppState::Excersise6Learning,
                     7 => self.state = AppState::Excersise7Learning,
@@ -305,33 +309,12 @@ impl Sandbox for App {
                     _ => todo!()
                 }
             },
-            Message::CheckExcersise2 => {
-                if let Some(excersise_data) = &mut self.exersise_data {
-                    let mut number_str = String::new();
-                    let chars = excersise_data.input_field_text.chars();
-                    chars.for_each(|char| {
-                        match char {
-                            'А' => number_str += "10",
-                            'Б' => number_str += "110",
-                            'В' => number_str += "12",
-                            'Г' => number_str += "102",
-                            _ => ()
-                        }
-                    });
-
-                    if number_str == excersise_data.right_answer {
-                        excersise_data.state = ExcersiseState::RightAnswer;
-                    } else {
-                        excersise_data.state = ExcersiseState::WrongAnswer;
-                    }
-                }
-            },
         };
 
         println!("{:?}", message);
     }
 
-    fn view(&self) -> iced::Element<'_, Self::Message> {
+    fn view(&self) -> iced::Element<'_, Message> {
         let save = &self.save;
         let app_state = &self.state;
         match app_state {
@@ -348,6 +331,9 @@ impl Sandbox for App {
             AppState::Excersise3 => Excersise3::select_subexcersise_view(save.total_done_excersise3, save.done_correctly_excersise3),
             AppState::Excersise3Learning => Excersise3::learning_view(),
             AppState::Excersise3Practice => Excersise3::practice_view(self.exersise_data.clone()),
+            AppState::Excersise4 => Excersise4::select_subexcersise_view(save.total_done_excersise4, save.done_correctly_excersise4),
+            AppState::Excersise4Learning => Excersise4::learning_view(),
+            AppState::Excersise4Practice => Excersise4::practice_view(self.exersise_data.clone()),
             AppState::Excersise5 => Excersise5::select_subexcersise_view(save.total_done_excersise5, save.done_correctly_excersise5),
             AppState::Excersise5Learning => Excersise5::learning_view(),
             AppState::Excersise5Practice => Excersise5::practice_view(self.exersise_data.clone()),
@@ -380,6 +366,7 @@ impl App {
             1 => self.state = AppState::Excersise1,
             2 => self.state = AppState::Excersise2,
             3 => self.state = AppState::Excersise3,
+            4 => self.state = AppState::Excersise4,
             5 => self.state = AppState::Excersise5,
             6 => self.state = AppState::Excersise6,
             7 => self.state = AppState::Excersise7,
@@ -401,10 +388,9 @@ impl App {
                     .width(Length::Fixed(250.0))
                     .on_press(Message::OpenExcersiseList),
             ].spacing(15)
-            .align_items(Alignment::Center)
+            .align_x(Alignment::Center)
         )
-            .center_y()
-            .center_x()
+            .center(Length::Fill)
             .width(Length::Fill)
             .height(Length::Fill)
             .into()
@@ -415,74 +401,73 @@ impl App {
             column![
                 text("Выбор задания:").size(48),
                 row![
-                    button(text("1").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                    button(text("1").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::SelectedExcersise(1)),
-                    button(text("2").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                    button(text("2").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::SelectedExcersise(2)),
-                    button(text("3").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                    button(text("3").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::SelectedExcersise(3)),
-                    button(text("4").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                    button(text("4").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
-                        .height(Length::Fixed(80.0)),
-                    button(text("5").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                        .height(Length::Fixed(80.0))
+                        .on_press(Message::SelectedExcersise(4)),
+                    button(text("5").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::SelectedExcersise(5)),
                 ].spacing(15),
                 row![
-                    button(text("6").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                    button(text("6").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::SelectedExcersise(6)),
-                    button(text("7").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                    button(text("7").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::SelectedExcersise(7)),
-                    button(text("8").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                    button(text("8").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0)),
-                    button(text("9").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                    button(text("9").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0)),
-                    button(text("10").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                    button(text("10").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::SelectedExcersise(10)),
                 ].spacing(15),
                 row![
-                    button(text("11").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                    button(text("11").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0)),
-                    button(text("12").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                    button(text("12").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::SelectedExcersise(12)),
-                    button(text("13").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                    button(text("13").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0)),
-                    button(text("14").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                    button(text("14").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::SelectedExcersise(14)),
-                    button(text("15").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                    button(text("15").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::SelectedExcersise(15)),
-                ].align_items(Alignment::Center).spacing(15),
-                button(text("Составить вариант").size(40).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                ].spacing(15),
+                button(text("Составить вариант").size(40).align_x(Horizontal::Center).align_y(Vertical::Center))
                     .width(Length::Fixed(459.0))
                     .height(Length::Fixed(80.0)),
             ].spacing(15)
-            .align_items(Alignment::Center)
         )
-            .center_y()
-            .center_x()
+        .center(Length::Fill)
             .width(Length::Fill)
             .height(Length::Fill)
             .into()
@@ -501,17 +486,25 @@ fn create_app_directory() {
 }
 
 #[derive(Clone, Debug)]
-pub struct ExersiseData {
+pub struct ExerciseData {
     title: String,
     right_answer: String,
     input_field_text: String,
-    state: ExcersiseState
+    state: ExcerciseState,
+    additional_data: Vec<AdditionalData>
 }
 
 #[derive(Clone, Debug)]
-pub enum ExcersiseState {
+pub enum ExcerciseState {
     NotDone,
     WrongAnswer,
     RightAnswer,
     NanAnswer
+}
+
+#[derive(Clone, Debug)]
+pub enum AdditionalData {
+    I32(i32),
+    Vec(Vec<AdditionalData>),
+    Graph(HashMap<String, Vec<(String, u32)>>),
 }

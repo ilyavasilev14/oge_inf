@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use iced::widget::{button, column, container, scrollable, text, Image};
 use rand::{Rng, distributions::{Alphanumeric, DistString}, seq::SliceRandom};
-use crate::{Message, ExersiseData, ExcersiseState};
+use crate::{Message, ExerciseData, ExcerciseState};
 use super::Exercise;
 
 
@@ -14,8 +14,7 @@ impl Exercise for Excersise7 {
     Решение задания с адресом файла: сначала указывается протокол (например, \"http\" или \"ftp\"), потом «://», потом сервер, затем «/», далее - файла указывается в конце. Пример: http://ya.ru/index.html
     Решение задания с адресом почтового ящика: сначала указывается имя почтового ящика, затем «@», а потом сервер. Пример: address@mail.ru")
             .size(48)
-            .vertical_alignment(iced::alignment::Vertical::Center)
-            .horizontal_alignment(iced::alignment::Horizontal::Center)
+            .center()
             .into();
 
 
@@ -31,7 +30,7 @@ impl Exercise for Excersise7 {
         cont
     }
 
-    fn generate_random_excersise() -> ExersiseData {
+    fn generate_random_excersise() -> ExerciseData {
         //let ex_type = rand::thread_rng().gen_range(0..4);
         let ex_type = rand::thread_rng().gen_range(1..=2);
         match ex_type {
@@ -59,7 +58,7 @@ impl Exercise for Excersise7 {
 
 
 
-fn generate_excersise_type1() -> ExersiseData {
+fn generate_excersise_type1() -> ExerciseData {
     let protocol = if rand::thread_rng().gen::<bool>() {
         "ftp"
     } else {
@@ -148,15 +147,16 @@ fn generate_excersise_type1() -> ExersiseData {
     letter_val["Е"], letter_val["Ж"]);
 
 
-    ExersiseData { 
+    ExerciseData { 
         title, 
         right_answer: answer,
         input_field_text: "".into(), 
-        state: ExcersiseState::NotDone
+        state: ExcerciseState::NotDone,
+        additional_data: Vec::new(),
     }
 } // http/ftp
 
-fn generate_excersise_type2() -> ExersiseData {
+fn generate_excersise_type2() -> ExerciseData {
     let mailbox = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(4..=10));
 
     let at = "@";
@@ -212,11 +212,12 @@ fn generate_excersise_type2() -> ExersiseData {
     server_name, server_name_ending, mailbox, letter_val["А"], letter_val["Б"], letter_val["В"], letter_val["Г"]);
 
 
-    ExersiseData { 
+    ExerciseData { 
         title, 
         right_answer: answer,
         input_field_text: "".into(), 
-        state: ExcersiseState::NotDone
+        state: ExcerciseState::NotDone,
+        additional_data: Vec::new(),
     }
 
 } // mail

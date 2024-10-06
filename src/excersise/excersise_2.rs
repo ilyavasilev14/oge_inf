@@ -1,7 +1,6 @@
-use iced::{alignment::{Horizontal, Vertical}, widget::{button, column, container, scrollable, text, text_input, Image}, Alignment, Length};
-use iced_aw::Modal;
+use iced::widget::{button, column, container, scrollable, text, Image};
 use rand::Rng;
-use crate::{Message, ExersiseData, ExcersiseState};
+use crate::{Message, ExerciseData, ExcerciseState};
 use super::Exercise;
 
 
@@ -11,8 +10,7 @@ impl Exercise for Excersise2 {
     fn learning_view<'a>() -> iced::Element<'a, Message> {
         let text: iced::Element<'a, Message> = text("Обучение для этого типа заданий ещё в разработке.")
             .size(Self::text_size())
-            .vertical_alignment(iced::alignment::Vertical::Center)
-            .horizontal_alignment(iced::alignment::Horizontal::Center)
+            .center()
             .into();
 
 
@@ -27,86 +25,7 @@ impl Exercise for Excersise2 {
 
         cont
     }
-
-    fn practice_view<'a>(excersise_data: Option<ExersiseData>) -> iced::Element<'a, Message> {
-        println!("practice view");
-        if let Some(excersise_data) = excersise_data {
-            let excersise_container = container(
-                column![
-                    text(excersise_data.title).size(Self::text_size()).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center)
-                        .width(Length::Fill),
-
-                    text_input("Ответ", &excersise_data.input_field_text)
-                        .width(Length::Fixed(500.0))
-                        .size(48)
-                        .on_input(|text| Message::ExcersiseTextInput(text)),
-
-                    button(text("Проверить ответ")
-                        .size(48)
-                        .horizontal_alignment(Horizontal::Center)
-                        .vertical_alignment(Vertical::Center))
-                        .width(Length::Fixed(500.0))
-                        .height(Length::Fixed(80.0))
-                        .on_press(Message::CheckExcersise2),
-                ].align_items(Alignment::Center).spacing(15)
-            )
-                .center_y()
-                .center_x()
-                .width(Length::Fill)
-                .height(Length::Fill);
-
-            let underlay = container(column![
-                button(Image::new("back_arrow.png").width(100).height(100)).on_press(Self::select_excersise()),
-                excersise_container,
-            ]);
-
-            match excersise_data.state {
-                ExcersiseState::NotDone => underlay.into(),
-                ExcersiseState::WrongAnswer => 
-                    Modal::new(true, underlay, move ||
-                        column![
-                            text("Задание решено неверно")
-                                .size(48).horizontal_alignment(Horizontal::Center),
-                            button(text("Новое задание").horizontal_alignment(Horizontal::Center).size(48))
-                                .on_press(Self::new_excersise(false)).width(500),
-                        ]
-                        .align_items(Alignment::Center)
-                        .spacing(15)
-                        .into())
-                    .into(),
-                ExcersiseState::RightAnswer => 
-                    Modal::new(true, underlay, || column![
-                        text("Задание решено верно!").size(48),
-                        button(text("Новое задание").horizontal_alignment(Horizontal::Center).size(48))
-                            .on_press(Self::new_excersise(true)).width(500),
-                    ]
-                    .align_items(Alignment::Center)
-                    .spacing(15)
-                    .into())
-                    .into(),
-                ExcersiseState::NanAnswer =>
-                    Modal::new(true, underlay, || 
-                        column![
-                            text("Введите число в ответ задания").size(48),
-                            button(text("Исправить ответ").horizontal_alignment(Horizontal::Center).size(48))
-                                .on_press(Message::SetState(ExcersiseState::NotDone)).width(500)
-                        ]
-                        .align_items(Alignment::Center)
-                        .spacing(15)
-                        .into())
-                    .into(),
-            }
-        } else {
-            text("NO EXCERSISE DATA").into()
-        }
-    }
-
-    fn generate_random_excersise() -> ExersiseData {
-        /*letters_values.insert(10, "А");
-        letters_values.insert(110, "Б");
-        letters_values.insert(12, "В");
-        Г - 102
-        */
+    fn generate_random_excersise() -> ExerciseData {
         let mut numbers: Vec<u32> = Vec::new();
         let length = rand::thread_rng().gen_range(3..=6);
 
@@ -136,11 +55,12 @@ impl Exercise for Excersise2 {
 {}
 В ответе запишите последовательность букв без запятых и других знаков препинания.", num_str);
 
-        ExersiseData {
+        ExerciseData {
             title,
             right_answer: num_str,
             input_field_text: String::new(),
-            state: ExcersiseState::NotDone,
+            state: ExcerciseState::NotDone,
+            additional_data: Vec::new(),
         }
     }
 

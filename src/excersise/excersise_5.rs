@@ -1,6 +1,6 @@
 use iced::widget::{button, column, container, scrollable, text, Image};
 use rand::Rng;
-use crate::{Message, ExersiseData, ExcersiseState};
+use crate::{Message, ExerciseData, ExcerciseState};
 use super::Exercise;
 
 
@@ -10,8 +10,7 @@ impl Exercise for Excersise5 {
     fn learning_view<'a>() -> iced::Element<'a, Message> {
          let text: iced::Element<'a, Message> = text("Обучение для этого типа заданий ещё в разработке.")
             .size(Self::text_size())
-            .vertical_alignment(iced::alignment::Vertical::Center)
-            .horizontal_alignment(iced::alignment::Horizontal::Center)
+            .center()
             .into();
 
 
@@ -27,7 +26,7 @@ impl Exercise for Excersise5 {
         cont
     }
 
-    fn generate_random_excersise() -> ExersiseData {
+    fn generate_random_excersise() -> ExerciseData {
         generate_excersise_type1()
     }
 
@@ -51,7 +50,7 @@ impl Exercise for Excersise5 {
 
 
 // From < number to >
-fn generate_excersise_type1() -> ExersiseData {
+fn generate_excersise_type1() -> ExerciseData {
     let base_number = rand::thread_rng().gen_range(1..=150);
     let plus_number = rand::thread_rng().gen_range(1..=25);
     let rounded_half_plus = ((plus_number / 2 + 1) as f32).round();
@@ -90,16 +89,17 @@ fn generate_excersise_type1() -> ExersiseData {
 
 Выполняя первую из них, Альфа увеличивает число на экране на {}, а выполняя вторую, умножает это число на b. Программа для исполнителя Альфа - это последовательность номеров команд. Известно, что программа {} переводит число {} в число {}. Определите значение b.", plus_number, plus_number, program, base_number, value);
 
-    ExersiseData {
+    ExerciseData {
         title,
         right_answer: multiply_number.to_string(),
         input_field_text: "".into(),
-        state: ExcersiseState::NotDone,
+        state: ExcerciseState::NotDone,
+        additional_data: Vec::new(),
     }
 }
 
 // From > number to <
-fn generate_excersise_type2() -> ExersiseData {
+fn generate_excersise_type2() -> ExerciseData {
     let mut base_number = rand::thread_rng().gen_range(100..=250);
     if base_number % 2 != 0 {
         base_number = rand::thread_rng().gen_range(100..=250);
@@ -159,11 +159,12 @@ fn generate_excersise_type2() -> ExersiseData {
 
 Выполняя первую из них, Альфа уменьшает число на экране на {}, а выполняя вторую, делит это число на b. Программа для исполнителя Альфа - это последовательность номеров команд. Известно, что программа {} переводит число {} в число {}. Определите значение b.", minus_number, minus_number, program, base_number, value);
 
-    ExersiseData {
+    ExerciseData {
         title,
         right_answer: division_number.to_string(),
         input_field_text: "".into(),
-        state: ExcersiseState::NotDone,
+        state: ExcerciseState::NotDone,
+        additional_data: Vec::new(),
     }
 }
 

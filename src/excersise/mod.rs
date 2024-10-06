@@ -1,11 +1,11 @@
-use iced::{widget::{container, column, button, text, Image, text_input}, alignment::{Horizontal, Vertical}, Length, Alignment};
-use iced_aw::Modal;
+use iced::{alignment::{Horizontal, Vertical}, widget::{button, column, container, text, text_input, Image}, Alignment, Length};
 use rand::{Rng, distributions::{Distribution, Standard}};
-use crate::{Message, ExersiseData, ExcersiseState};
+use crate::{Message, ExerciseData, ExcerciseState};
 
 pub mod excersise_1;
 pub mod excersise_2;
 pub mod excersise_3;
+pub mod exercise_4;
 pub mod excersise_5;
 pub mod excersise_6;
 pub mod excersise_7;
@@ -21,18 +21,17 @@ pub trait Exercise {
             (done_correctly as f32 / done_totally as f32 * 100.0).round() as u32;
         let buttons_container = container(
             column![
-                button(text("Обучение").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                button(text("Обучение").size(48).center())
                     .width(Length::Fixed(300.0))
                     .height(Length::Fixed(80.0))
                     .on_press(Self::select_learning()),
-                button(text("Практика").size(48).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center))
+                button(text("Практика").size(48).center())
                     .width(Length::Fixed(300.0))
                     .height(Length::Fixed(80.0))
                     .on_press(Self::select_subexcersise()),
             ].spacing(15)
         )
-            .center_y()
-            .center_x()
+            .center(Length::Fill)
             .width(Length::Fill)
             .height(Length::Fill);
 
@@ -40,39 +39,34 @@ pub trait Exercise {
             column![
                 button(Image::new("back_arrow.png").width(100).height(100)).on_press(Message::OpenExcersiseList),
                 buttons_container,
-                text(format!("Решено всего: {}", done_totally)).size(48).horizontal_alignment(Horizontal::Center),
+                text(format!("Решено всего: {}", done_totally)).size(48).align_x(Horizontal::Center),
                 text(format!("Решено правильно: {}({}%)", done_correctly, done_correctly_percent))
-                    .size(48).horizontal_alignment(Horizontal::Center),
+                    .size(48).align_x(Horizontal::Center),
             ]);
         main_container.into()
     }
 
     // Практика
-    fn practice_view<'a>(excersise_data: Option<ExersiseData>) -> iced::Element<'a, Message> {
+    fn practice_view<'a>(excersise_data: Option<ExerciseData>) -> iced::Element<'a, Message> {
         println!("practice view");
         if let Some(excersise_data) = excersise_data {
             let excersise_container = container(
                 column![
-                text(excersise_data.title).size(Self::text_size()).horizontal_alignment(Horizontal::Center).vertical_alignment(Vertical::Center)
-                    .width(Length::Fill),
+                    text(excersise_data.title).size(Self::text_size()).align_x(Horizontal::Center).align_y(Vertical::Center).center(),
+                    text_input("Ответ", &excersise_data.input_field_text)
+                        .align_x(Alignment::Center)
+                        .width(Length::Fixed(500.0))
+                        .size(48)
+                        .on_input(|text| Message::ExcersiseTextInput(text)),
 
-                text_input("Ответ", &excersise_data.input_field_text)
-                    .width(Length::Fixed(500.0))
-                    .size(48)
-                    .on_input(|text| Message::ExcersiseTextInput(text)),
-                button(text("Проверить ответ")
-                    .size(48)
-                    .horizontal_alignment(Horizontal::Center)
-                    .vertical_alignment(Vertical::Center))
-                    .width(Length::Fixed(500.0))
-                    .height(Length::Fixed(80.0))
-                    .on_press(Message::CheckAnswer),
-                ].align_items(Alignment::Center).spacing(15)
-            )
-                .center_y()
-                .center_x()
-                .width(Length::Fill)
-                .height(Length::Fill);
+                    button(text("Проверить ответ")
+                        .size(48)
+                        .center())
+                        .width(Length::Fixed(500.0))
+                        .height(Length::Fixed(80.0))
+                        .on_press(Message::CheckAnswer),
+                    ].align_x(Alignment::Center).spacing(15)
+                ).center(Length::Fill);
 
             let underlay = container(column![
                 button(Image::new("back_arrow.png").width(100).height(100)).on_press(Self::select_excersise()),
@@ -80,51 +74,51 @@ pub trait Exercise {
             ]);
 
             match excersise_data.state {
-                ExcersiseState::NotDone => underlay.into(),
-                ExcersiseState::WrongAnswer => 
-                    Modal::new(true, underlay, move ||
-                        if Self::show_right_answer() {
+                ExcerciseState::NotDone => underlay.into(),
+                ExcerciseState::WrongAnswer => {
+                    if Self::show_right_answer() {
+                        container(
                             column![
                                 text(format!("Задание решено неверно!\nПравильный ответ: {}", excersise_data.right_answer))
-                                    .size(48).horizontal_alignment(Horizontal::Center),
-                                    button(text("Новое задание").horizontal_alignment(Horizontal::Center).size(48))
+                                    .size(48).align_x(Horizontal::Center),
+                                    button(text("Новое задание").align_x(Horizontal::Center).size(48))
                                         .on_press(Self::new_excersise(false)).width(500),
                             ]
-                                .align_items(Alignment::Center)
+                                .align_x(Alignment::Center)
                                 .spacing(15)
-                        } else {
+                        ).center(Length::Fill)
+                    } else {
+                        container(
                             column![
                                 text("Задание решено неверно!")
-                                    .size(48).horizontal_alignment(Horizontal::Center),
-                                    button(text("Новое задание").horizontal_alignment(Horizontal::Center).size(48))
-                                        .on_press(Self::new_excersise(false)).width(500),
+                                    .size(48).align_x(Horizontal::Center),
+                                button(text("Новое задание").align_x(Horizontal::Center).size(48))
+                                    .on_press(Self::new_excersise(false)).width(500),
                             ]
-                                .align_items(Alignment::Center)
-                                .spacing(15)
-                        }
-                        .into())
-                    .into(),
-                ExcersiseState::RightAnswer => 
-                    Modal::new(true, underlay, || column![
-                        text("Задание решено верно!").size(48),
-                        button(text("Новое задание").horizontal_alignment(Horizontal::Center).size(48))
-                            .on_press(Self::new_excersise(true)).width(500),
-                    ]
-                    .align_items(Alignment::Center)
-                    .spacing(15)
-                    .into())
-                    .into(),
-                ExcersiseState::NanAnswer =>
-                    Modal::new(true, underlay, || 
+                            .spacing(15)
+                        ).center(Length::Fill)
+                    }.into()
+                },
+                ExcerciseState::RightAnswer => 
+                    container(
+                        column![
+                            text("Задание решено верно!").size(48),
+                            button(text("Новое задание").size(48).align_x(Horizontal::Center))
+                                .on_press(Self::new_excersise(true)).width(500),
+                        ]
+                        .spacing(15)
+                        .align_x(Alignment::Center)
+                    ).center(Length::Fill).into(),
+                ExcerciseState::NanAnswer =>
+                    container(
                         column![
                             text("Введите число в ответ задания").size(48),
-                            button(text("Исправить ответ").horizontal_alignment(Horizontal::Center).size(48))
-                                .on_press(Message::SetState(ExcersiseState::NotDone)).width(500)
+                            button(text("Исправить ответ").size(48).align_x(Horizontal::Center))
+                                .on_press(Message::SetState(ExcerciseState::NotDone)).width(500)
                         ]
-                        .align_items(Alignment::Center)
+                        .align_x(Alignment::Center)
                         .spacing(15)
-                        .into())
-                    .into(),
+                    ).center(Length::Fill).into(),
             }
         } else {
             text("NO EXCERSISE DATA").into()
@@ -133,7 +127,7 @@ pub trait Exercise {
 
 
     // Создание случайного задания
-    fn generate_random_excersise() -> ExersiseData;
+    fn generate_random_excersise() -> ExerciseData;
     // Обучение
     fn learning_view<'a>() -> iced::Element<'a, Message>;
 

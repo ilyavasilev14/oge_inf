@@ -2,7 +2,7 @@ use std::fs;
 use directories::UserDirs;
 use iced::widget::{button, column, container, scrollable, text, Image};
 use rand::{Rng, distributions::{Alphanumeric, DistString}};
-use crate::{Message, ExersiseData, ExcersiseState};
+use crate::{Message, ExerciseData, ExcerciseState};
 use super::Exercise;
 use std::process::Command;
 use std::path::PathBuf;
@@ -30,7 +30,7 @@ impl Exercise for Excersise12 {
         cont
     }
 
-    fn generate_random_excersise() -> ExersiseData {
+    fn generate_random_excersise() -> ExerciseData {
         //let ex_type = rand::thread_rng().gen_range(0..4);
         let ex_type = rand::thread_rng().gen_range(1..=2);
         match ex_type {
@@ -59,7 +59,7 @@ impl Exercise for Excersise12 {
 
 
 
-fn generate_excersise_type1() -> ExersiseData {
+fn generate_excersise_type1() -> ExerciseData {
     let required_file_extention = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(2..=5));
 
     let required_dir_name = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(4..=8));
@@ -113,20 +113,21 @@ fn generate_excersise_type1() -> ExersiseData {
         panic!("failed to get user dirs");
     }
     let title = format!(
-"Сколько файлов с расширением {} содержится в каталоге {}? В ответе укажите только число.
+        "Сколько файлов с расширением {} содержится в каталоге {}? В ответе укажите только число.
 
-{} является подкаталогом \"ОГЭ\", который находится в домашнем каталоге.", 
-    required_file_extention, required_dir_name, required_dir_name);
+        {} является подкаталогом \"ОГЭ\", который находится в домашнем каталоге.", 
+        required_file_extention, required_dir_name, required_dir_name);
 
-    ExersiseData {
+    ExerciseData {
         title,
         right_answer: required_dir_required_file_count.to_string(),
         input_field_text: "".into(),
-        state: ExcersiseState::NotDone,
+        state: ExcerciseState::NotDone,
+        additional_data: Vec::new(),
     }
 }
 
-fn generate_excersise_type2() -> ExersiseData {
+fn generate_excersise_type2() -> ExerciseData {
     let required_file_extention = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(2..=5));
 
     let required_dir_name = Alphanumeric.sample_string(&mut rand::thread_rng(), rand::thread_rng().gen_range(4..=8));
@@ -193,18 +194,18 @@ fn generate_excersise_type2() -> ExersiseData {
         panic!("failed to get user dirs");
     }
     let title = format!(
-"Сколько файлов с расширением {} объемом более {} байт содержится в каталоге {}? В ответе укажите только число.
+        "Сколько файлов с расширением {} объемом более {} байт содержится в каталоге {}? В ответе укажите только число.
 
-{} является подкаталогом \"ОГЭ\", который находится в домашнем каталоге.", 
-    required_file_extention, required_file_size_bytes, required_dir_name, required_dir_name);
+        {} является подкаталогом \"ОГЭ\", который находится в домашнем каталоге.", 
+        required_file_extention, required_file_size_bytes, required_dir_name, required_dir_name);
 
-    ExersiseData {
+    ExerciseData {
         title,
         right_answer: required_dir_required_file_size_count.to_string(),
         input_field_text: "".into(),
-        state: ExcersiseState::NotDone,
+        state: ExcerciseState::NotDone,
+        additional_data: Vec::new(),
     }
-
 }
 
 fn create_file(path: PathBuf) {

@@ -11,8 +11,12 @@ directories = "5.0.1"
 downcast-rs = "1.2.0"
 edit-xlsx = "0.4.3"
 fakedata_generator = "0.4.0"
-iced = { version = "0.9.0", features = ["image"] }
-iced_aw = { version = "0.5", default-features = false, features = ["modal", "card"] }
+#iced = { version = "0.13.0", features = ["image"] }
+iced = { version = "0.13.0", features = ["image"] }
+iced_aw = { version = "0.11.0", features = ["card"] }
+iced_table = "0.13.0"
+#iced = { version = "0.9.0", features = ["image"] }
+#iced_aw = { version = "0.5", default-features = false, features = ["modal", "card"] }
 rand = "0.8.5"
 serde = { version = "1.0", features = ["derive"] }
 toml = "0.8.8"

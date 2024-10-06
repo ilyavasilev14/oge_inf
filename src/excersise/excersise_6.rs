@@ -1,6 +1,6 @@
 use iced::widget::{scrollable, text, container, column, button, Image};
 use rand::{Rng, distributions::{Distribution, Standard}};
-use crate::{Message, ExersiseData, ExcersiseState};
+use crate::{Message, ExerciseData, ExcerciseState};
 use super::Exercise;
 
 
@@ -14,8 +14,7 @@ impl Exercise for Excersise6 {
     Например, если даны пары чисел (9, 9); (9, 10); (8, 5); (11, 6); (–11, 10); (–5, 9); (–10, 10); (4, 5); (8, 6), то условие будет подходить только к (8, 5); (11, 6); (-11, 10); (-5, 9); (-10, 10); (4, 5); (8, 6)
     Если в задании просят найти то, сколько раз программа вывела \"ДА\", то нам нужно посчитать количество пар, к которым данное условие подошло.")
             .size(48)
-            .vertical_alignment(iced::alignment::Vertical::Center)
-            .horizontal_alignment(iced::alignment::Horizontal::Center)
+            .center()
             .into();
 
 
@@ -31,7 +30,7 @@ impl Exercise for Excersise6 {
         cont
     }
 
-    fn generate_random_excersise() -> ExersiseData {
+    fn generate_random_excersise() -> ExerciseData {
         //let ex_type = rand::thread_rng().gen_range(0..4);
         let ex_type = rand::thread_rng().gen_range(1..=2);
         match ex_type {
@@ -63,7 +62,7 @@ impl Exercise for Excersise6 {
 
 
 
-fn generate_excersise_type1() -> ExersiseData {
+fn generate_excersise_type1() -> ExerciseData {
     let random_variant: ExcersiseVariations = rand::random(); 
     let s: i32;
     let t: i32;
@@ -189,15 +188,16 @@ fn generate_excersise_type1() -> ExersiseData {
 {}
 Сколько было запусков, при которых программа напечатала {}?", 
         program_text, number_sets_list_string, requested_output);
-    return ExersiseData {
+    return ExerciseData {
         title: full_title,
         right_answer: answer.to_string(),
         input_field_text: String::new(),
-        state: ExcersiseState::NotDone,
+        state: ExcerciseState::NotDone,
+        additional_data: Vec::new(),
     };
 } // generate_excersise_type2 is AND excersise(this function is OR)
 
-fn generate_excersise_type2() -> ExersiseData {
+fn generate_excersise_type2() -> ExerciseData {
     let random_variant: ExcersiseVariations = rand::random(); 
     let s: i32;
     let t: i32;
@@ -324,11 +324,12 @@ fn generate_excersise_type2() -> ExersiseData {
 Сколько было запусков, при которых программа напечатала {}?", 
         program_text, number_sets_list_string, requested_output);
 
-    return ExersiseData {
+    return ExerciseData {
         title: full_title,
         right_answer: answer.to_string(),
         input_field_text: String::new(),
-        state: ExcersiseState::NotDone,
+        state: ExcerciseState::NotDone,
+        additional_data: Vec::new(),
     };
 }
 

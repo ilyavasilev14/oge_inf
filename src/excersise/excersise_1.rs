@@ -1,6 +1,6 @@
 use iced::widget::{button, column, container, scrollable, text, Image};
 use rand::{distributions::{Alphanumeric, DistString}, Rng};
-use crate::{ExersiseData, ExcersiseState, Message};
+use crate::{ExerciseData, ExcerciseState, Message};
 use super::Exercise;
 
 
@@ -14,8 +14,7 @@ impl Exercise for Excersise1 {
     В задании, где надо найти, какое из слов удалили, надо посчитать то, сколько символов было удалено. Для этого надо разделить то, насколько уменьшился файл, на объём одного символа. Потом надо найти количество убранных букв, потому что кроме букв были удалены запятая и пробел. Чтобы его вычислить, надо просто вычесть из всех символов число 2. Затем требуется найти слово с таким количеством букв в нём, оно и является ответом.
     Во втором варианте упражнения надо умножить количество символов в строке на кол-во строк, а затем домножить на страницы. После этого, чтобы найти информационный объём в байтах, надо умножить найденное ранее значение на объём одного символа. После этого необходимо перевести его из байтов в нужную  единицу измерения.")
             .size(Self::text_size())
-            .vertical_alignment(iced::alignment::Vertical::Center)
-            .horizontal_alignment(iced::alignment::Horizontal::Center)
+            .center()
             .into();
 
 
@@ -31,7 +30,7 @@ impl Exercise for Excersise1 {
         cont
     }
 
-    fn generate_random_excersise() -> ExersiseData {
+    fn generate_random_excersise() -> ExerciseData {
         //let ex_type = rand::thread_rng().gen_range(0..4);
         let ex_type = rand::thread_rng().gen_range(1..=2);
         match ex_type {
@@ -64,7 +63,7 @@ impl Exercise for Excersise1 {
 
 
 // From < number to >
-fn generate_excersise_type1() -> ExersiseData {
+fn generate_excersise_type1() -> ExerciseData {
     let excersise_type = rand::thread_rng().gen_range(0..=2);
     let mut right_answer = "".into();
     let symbol_size: &str;
@@ -140,15 +139,16 @@ format!("Каждый символ в кодировке {}. Миша напис
 Ученик вычеркнул из списка один из наборов символов. Заодно он вычеркнул ставшие лишними запятые и пробелы - два пробела не должны идти подряд.
 При этом размер нового предложения в данной кодировке оказался на {} байтов меньше, чем размер исходного предложения. Напишите в ответе вычеркнутый набор символов.",
     symbol_size, symbols_string, reduced_size);
-    ExersiseData {
+    ExerciseData {
         title,
         right_answer,
         input_field_text: "".into(),
-        state: ExcersiseState::NotDone,
+        state: ExcerciseState::NotDone,
+        additional_data: Vec::new(),
     }
 }
 
-fn generate_excersise_type2() -> ExersiseData {
+fn generate_excersise_type2() -> ExerciseData {
     let excersise_type = rand::thread_rng().gen_range(0..=2);
     let char_size_description: &str;
     let char_size;
@@ -181,11 +181,12 @@ fn generate_excersise_type2() -> ExersiseData {
     let title = 
 format!("Каждый символ в кодировке {}. Текст, набранный на компьютере, содержит {} страниц, каждая по {} строк, а каждая строка состоит из {} символов.
 Определите информационный объём текста в Кбайтах. Ответ округлите до целых.", char_size_description, pages_count, lines_count, char_count);
-    ExersiseData {
+    ExerciseData {
         title,
         right_answer,
         input_field_text: "".into(),
-        state: ExcersiseState::NotDone,
+        state: ExcerciseState::NotDone,
+        additional_data: Vec::new(),
     }
 }
 
