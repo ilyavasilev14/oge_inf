@@ -100,7 +100,7 @@ impl Exercise for Excersise14 {
         Message::SelectedLearningExcersise(14)
     }
 
-    fn excersise_number() -> u8 {
+    fn exercise_number() -> u8 {
         14
     }
 

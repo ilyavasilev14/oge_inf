@@ -52,7 +52,7 @@ impl Exercise for Excersise3 {
         Message::SelectedExcersise(3)
     }
 
-    fn excersise_number() -> u8 {
+    fn exercise_number() -> u8 {
         3
     }
 

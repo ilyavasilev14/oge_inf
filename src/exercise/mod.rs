@@ -2,22 +2,22 @@ use iced::{alignment::{Horizontal, Vertical}, widget::{button, column, container
 use rand::{Rng, distributions::{Distribution, Standard}};
 use crate::{Message, ExerciseData, ExcerciseState};
 
-pub mod excersise_1;
-pub mod excersise_2;
-pub mod excersise_3;
+pub mod exercise_1;
+pub mod exercise_2;
+pub mod exercise_3;
 pub mod exercise_4;
-pub mod excersise_5;
-pub mod excersise_6;
-pub mod excersise_7;
+pub mod exercise_5;
+pub mod exercise_6;
+pub mod exercise_7;
 pub mod exercise_8;
-pub mod excersise_10;
-pub mod excersise_12;
-pub mod excersise_14;
-pub mod excersise_15;
+pub mod exercise_10;
+pub mod exercise_12;
+pub mod exercise_14;
+pub mod exercise_15;
 
 pub trait Exercise {
     // Выбор практики или обучения
-    fn select_subexcersise_view<'a>(done_totally: u32, done_correctly: u32) -> iced::Element<'a, Message> {
+    fn select_subexercise_view<'a>(done_totally: u32, done_correctly: u32) -> iced::Element<'a, Message> {
         let done_correctly_percent = 
             (done_correctly as f32 / done_totally as f32 * 100.0).round() as u32;
         let buttons_container = container(
@@ -48,13 +48,13 @@ pub trait Exercise {
     }
 
     // Практика
-    fn practice_view<'a>(excersise_data: Option<ExerciseData>) -> iced::Element<'a, Message> {
+    fn practice_view<'a>(exercise_data: Option<ExerciseData>) -> iced::Element<'a, Message> {
         println!("practice view");
-        if let Some(excersise_data) = excersise_data {
-            let excersise_container = container(
+        if let Some(exercise_data) = exercise_data {
+            let exercise_container = container(
                 column![
-                    text(excersise_data.title).size(Self::text_size()).align_x(Horizontal::Center).align_y(Vertical::Center).center(),
-                    text_input("Ответ", &excersise_data.input_field_text)
+                    text(exercise_data.title).size(Self::text_size()).align_x(Horizontal::Center).align_y(Vertical::Center).center(),
+                    text_input("Ответ", &exercise_data.input_field_text)
                         .align_x(Alignment::Center)
                         .width(Length::Fixed(500.0))
                         .size(48)
@@ -71,16 +71,16 @@ pub trait Exercise {
 
             let underlay = container(column![
                 button(Image::new("back_arrow.png").width(100).height(100)).on_press(Self::select_excersise()),
-                excersise_container,
+                exercise_container,
             ]);
 
-            match excersise_data.state {
+            match exercise_data.state {
                 ExcerciseState::NotDone => underlay.into(),
                 ExcerciseState::WrongAnswer => {
                     if Self::show_right_answer() {
                         container(
                             column![
-                                text(format!("Задание решено неверно!\nПравильный ответ: {}", excersise_data.right_answer))
+                                text(format!("Задание решено неверно!\nПравильный ответ: {}", exercise_data.right_answer))
                                     .size(48).align_x(Horizontal::Center),
                                     button(text("Новое задание").align_x(Horizontal::Center).size(48))
                                         .on_press(Self::new_excersise(false)).width(500),
@@ -139,7 +139,7 @@ pub trait Exercise {
     fn select_subexcersise() -> Message;
     fn select_learning() -> Message;
     fn select_excersise() -> Message;
-    fn excersise_number() -> u8;
+    fn exercise_number() -> u8;
 
     fn show_right_answer() -> bool {
         true
@@ -147,8 +147,8 @@ pub trait Exercise {
 
     fn new_excersise(done_correctly: bool) -> Message { 
         match done_correctly {
-            true => Message::ExcersiseDoneCorrectly(Self::excersise_number()),
-            false => Message::ExcersiseDoneWrong(Self::excersise_number()),
+            true => Message::ExcersiseDoneCorrectly(Self::exercise_number()),
+            false => Message::ExcersiseDoneWrong(Self::exercise_number()),
         }
     }
 }

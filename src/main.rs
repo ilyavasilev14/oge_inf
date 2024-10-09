@@ -4,29 +4,29 @@ use std::process::{Command, Stdio};
 
 use calamine::{Data, Reader, Xlsx};
 use directories::UserDirs;
-use excersise::excersise_1::Excersise1;
-use excersise::excersise_10::Excersise10;
-use excersise::excersise_14::Excersise14;
-use excersise::excersise_2::Excersise2;
-use excersise::exercise_4::Excersise4;
-use excersise::exercise_8::Excersise8;
-use excersise::Exercise;
-use excersise::excersise_12::Excersise12;
-use excersise::excersise_15::Excersise15;
-use excersise::excersise_3::Excersise3;
-use excersise::excersise_5::Excersise5;
-use excersise::excersise_6::Excersise6;
-use excersise::excersise_7::Excersise7;
+use exercise::exercise_1::Excersise1;
+use exercise::exercise_10::Excersise10;
+use exercise::exercise_14::Excersise14;
+use exercise::exercise_2::Excersise2;
+use exercise::exercise_4::Excersise4;
+use exercise::exercise_8::Excersise8;
+use exercise::Exercise;
+use exercise::exercise_12::Excersise12;
+use exercise::exercise_15::Excersise15;
+use exercise::exercise_3::Excersise3;
+use exercise::exercise_5::Excersise5;
+use exercise::exercise_6::Excersise6;
+use exercise::exercise_7::Excersise7;
 use iced::alignment::{Horizontal, Vertical};
 use iced::widget::{column, text_input, button, text, container, row};
 use iced::{Alignment, Length};
 use login::SaveData;
 
-use crate::excersise::excersise_14::Exersise14Answer;
-use crate::login::{init_login, save_login_data, increment_done_correctly_excersise, increment_total_excersise};
+use crate::exercise::exercise_14::Exersise14Answer;
+use crate::login::{init_login, save_login_data, increment_done_correctly_exercise, increment_total_exercise};
 
 mod login;
-mod excersise;
+mod exercise;
 
 fn main() {
     let run_result = iced::run("Тренажёр для ОГЭ по информатике", App::update, App::view);
@@ -92,14 +92,14 @@ enum Message {
     ExcersiseTextInput(String),
     CheckAnswer,
     SetState(ExcerciseState),
-    /// u8 is excersise number
+    /// u8 is exercise number
     ExcersiseDoneWrong(u8),
-    /// u8 is excersise number
+    /// u8 is exercise number
     ExcersiseDoneCorrectly(u8), 
     OpenSolutionFile, 
     /// input, output
     PythonCheckAnswer(String, String),
-    /// excersise14answer serialized to toml
+    /// exercise14answer serialized to toml
     Excersise14CheckAnswer,
     SelectedLearningExcersise(i32),
 }
@@ -123,12 +123,12 @@ impl App {
                 self.state = AppState::ChoosingExcersise;
             },
             Message::LoginChanged(new_text) => self.login = new_text.into(),
-            Message::SelectedExcersise(excersise_number) => {
-                self.handle_selecting_excersise(*excersise_number);
+            Message::SelectedExcersise(exercise_number) => {
+                self.handle_selecting_exercise(*exercise_number);
             }
-            Message::SelectedSubExcersise(excersise_number, excersise_data) => {
-                self.exersise_data = Some(excersise_data.clone());
-                match excersise_number {
+            Message::SelectedSubExcersise(exercise_number, exercise_data) => {
+                self.exersise_data = Some(exercise_data.clone());
+                match exercise_number {
                     1 => {
                         self.state = AppState::Excersise1Practice;
                     },
@@ -169,34 +169,34 @@ impl App {
                 }
             }
             Message::ExcersiseTextInput(text) => {
-                if let Some(excersise_data) = &mut self.exersise_data {
-                    excersise_data.input_field_text = text.into();
+                if let Some(exercise_data) = &mut self.exersise_data {
+                    exercise_data.input_field_text = text.into();
                 }
             }
             Message::CheckAnswer => {
-                if let Some(excersise_data) = &mut self.exersise_data {
-                    if excersise_data.input_field_text == excersise_data.right_answer {
-                        excersise_data.state = ExcerciseState::RightAnswer;
+                if let Some(exercise_data) = &mut self.exersise_data {
+                    if exercise_data.input_field_text == exercise_data.right_answer {
+                        exercise_data.state = ExcerciseState::RightAnswer;
                     } else {
-                        excersise_data.state = ExcerciseState::WrongAnswer;
+                        exercise_data.state = ExcerciseState::WrongAnswer;
                     }
                 }
             },
             Message::SetState(state) => {
-                if let Some(excersise_data) = &mut self.exersise_data {
-                    excersise_data.state = state.to_owned();
+                if let Some(exercise_data) = &mut self.exersise_data {
+                    exercise_data.state = state.to_owned();
                 }
                 save_login_data(&self.save);
             },
-            Message::ExcersiseDoneWrong(excersise_num) => {
-                increment_total_excersise(*excersise_num, &mut self.save);
-                self.handle_selecting_excersise(*excersise_num);
+            Message::ExcersiseDoneWrong(exercise_num) => {
+                increment_total_exercise(*exercise_num, &mut self.save);
+                self.handle_selecting_exercise(*exercise_num);
                 save_login_data(&self.save);
             },
-            Message::ExcersiseDoneCorrectly(excersise_num) => {
-                increment_total_excersise(*excersise_num, &mut self.save);
-                increment_done_correctly_excersise(*excersise_num, &mut self.save);
-                self.handle_selecting_excersise(*excersise_num);
+            Message::ExcersiseDoneCorrectly(exercise_num) => {
+                increment_total_exercise(*exercise_num, &mut self.save);
+                increment_done_correctly_exercise(*exercise_num, &mut self.save);
+                self.handle_selecting_exercise(*exercise_num);
                 save_login_data(&self.save);
             },
             Message::OpenSolutionFile => {
@@ -300,8 +300,8 @@ impl App {
                     exersise_data.state = ExcerciseState::RightAnswer;
                 }
             },
-            Message::SelectedLearningExcersise(excersise_number) => {
-                match excersise_number {
+            Message::SelectedLearningExcersise(exercise_number) => {
+                match exercise_number {
                     1 => self.state = AppState::Excersise1Learning,
                     2 => self.state = AppState::Excersise2Learning,
                     3 => self.state = AppState::Excersise3Learning,
@@ -330,40 +330,40 @@ impl App {
             AppState::Login => self.login_view(),
             // Если пользователю надо показать экран выбора задания
             AppState::ChoosingExcersise => self.choosing_view(),
-            AppState::Excersise1 => Excersise1::select_subexcersise_view(save.total_done_excersise1, save.done_correctly_excersise1),
+            AppState::Excersise1 => Excersise1::select_subexercise_view(save.total_done_exercise1, save.done_correctly_exercise1),
             AppState::Excersise1Learning => Excersise1::learning_view(),
             AppState::Excersise1Practice => Excersise1::practice_view(self.exersise_data.clone()),
-            AppState::Excersise2 => Excersise2::select_subexcersise_view(save.total_done_excersise2, save.done_correctly_excersise2),
+            AppState::Excersise2 => Excersise2::select_subexercise_view(save.total_done_exercise2, save.done_correctly_exercise2),
             AppState::Excersise2Learning => Excersise2::learning_view(),
             AppState::Excersise2Practice => Excersise2::practice_view(self.exersise_data.clone()),
-            AppState::Excersise3 => Excersise3::select_subexcersise_view(save.total_done_excersise3, save.done_correctly_excersise3),
+            AppState::Excersise3 => Excersise3::select_subexercise_view(save.total_done_exercise3, save.done_correctly_exercise3),
             AppState::Excersise3Learning => Excersise3::learning_view(),
             AppState::Excersise3Practice => Excersise3::practice_view(self.exersise_data.clone()),
-            AppState::Excersise4 => Excersise4::select_subexcersise_view(save.total_done_excersise4, save.done_correctly_excersise4),
+            AppState::Excersise4 => Excersise4::select_subexercise_view(save.total_done_exercise4, save.done_correctly_exercise4),
             AppState::Excersise4Learning => Excersise4::learning_view(),
             AppState::Excersise4Practice => Excersise4::practice_view(self.exersise_data.clone()),
-            AppState::Excersise5 => Excersise5::select_subexcersise_view(save.total_done_excersise5, save.done_correctly_excersise5),
+            AppState::Excersise5 => Excersise5::select_subexercise_view(save.total_done_exercise5, save.done_correctly_exercise5),
             AppState::Excersise5Learning => Excersise5::learning_view(),
             AppState::Excersise5Practice => Excersise5::practice_view(self.exersise_data.clone()),
-            AppState::Excersise6 => Excersise6::select_subexcersise_view(save.total_done_excersise6, save.done_correctly_excersise6),
+            AppState::Excersise6 => Excersise6::select_subexercise_view(save.total_done_exercise6, save.done_correctly_exercise6),
             AppState::Excersise6Learning => Excersise6::learning_view(),
             AppState::Excersise6Practice => Excersise6::practice_view(self.exersise_data.clone()),
-            AppState::Excersise7 => Excersise7::select_subexcersise_view(save.total_done_excersise7, save.done_correctly_excersise7),
+            AppState::Excersise7 => Excersise7::select_subexercise_view(save.total_done_exercise7, save.done_correctly_exercise7),
             AppState::Excersise7Learning => Excersise7::learning_view(),
             AppState::Excersise7Practice => Excersise7::practice_view(self.exersise_data.clone()),
-            AppState::Excersise8 => Excersise8::select_subexcersise_view(save.total_done_excersise8, save.done_correctly_excersise8),
+            AppState::Excersise8 => Excersise8::select_subexercise_view(save.total_done_exercise8, save.done_correctly_exercise8),
             AppState::Excersise8Learning => Excersise8::learning_view(),
             AppState::Excersise8Practice => Excersise8::practice_view(self.exersise_data.clone()),
-            AppState::Excersise12 => Excersise12::select_subexcersise_view(save.total_done_excersise12, save.done_correctly_excersise12),
+            AppState::Excersise12 => Excersise12::select_subexercise_view(save.total_done_exercise12, save.done_correctly_exercise12),
             AppState::Excersise12Learning => Excersise12::learning_view(),
             AppState::Excersise12Practice => Excersise12::practice_view(self.exersise_data.clone()),
-            AppState::Excersise14 => Excersise14::select_subexcersise_view(save.total_done_excersise12, save.done_correctly_excersise12),
+            AppState::Excersise14 => Excersise14::select_subexercise_view(save.total_done_exercise12, save.done_correctly_exercise12),
             AppState::Excersise14Learning => Excersise14::learning_view(),
             AppState::Excersise14Practice => Excersise14::practice_view(self.exersise_data.clone()),
-            AppState::Excersise15 => Excersise15::select_subexcersise_view(save.total_done_excersise15, save.done_correctly_excersise15),
+            AppState::Excersise15 => Excersise15::select_subexercise_view(save.total_done_exercise15, save.done_correctly_exercise15),
             AppState::Excersise15Learning => Excersise15::learning_view(),
             AppState::Excersise15Practice => Excersise15::practice_view(self.exersise_data.clone()),
-            AppState::Excersise10=> Excersise10::select_subexcersise_view(save.total_done_excersise10, save.done_correctly_excersise10),
+            AppState::Excersise10=> Excersise10::select_subexercise_view(save.total_done_exercise10, save.done_correctly_exercise10),
             AppState::Excersise10Learning => Excersise10::learning_view(),
             AppState::Excersise10Practice => Excersise10::practice_view(self.exersise_data.clone()),
         }
@@ -372,8 +372,8 @@ impl App {
 
 
 impl App {
-    fn handle_selecting_excersise(&mut self, excersise_number: u8) {
-        match excersise_number {
+    fn handle_selecting_exercise(&mut self, exercise_number: u8) {
+        match exercise_number {
             1 => self.state = AppState::Excersise1,
             2 => self.state = AppState::Excersise2,
             3 => self.state = AppState::Excersise3,
