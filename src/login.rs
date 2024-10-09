@@ -31,8 +31,25 @@ pub fn init_login(login: &str) -> SaveData {
                 }
                 save_data
             } else {
-                let save_data: SaveData = toml::from_str(&fs::read_to_string(login_config_path).unwrap()).unwrap();
-                save_data
+                let save_data: Result<SaveData, toml::de::Error> = toml::from_str(&fs::read_to_string(login_config_path).unwrap());
+                match save_data {
+                    Ok(save_data) => save_data,
+                    Err(err) => {
+                        println!("failed to load SaveData from the toml file! Err: {}. Removing it and creating a new, empty one.", err);
+                        fs::remove_file(login_config_path).unwrap();
+                        let save_data = SaveData {
+                            login: login.to_string(),
+                            ..Default::default()
+                        };
+                        match File::create(login_config_path) {
+                            Ok(_) => {
+                                fs::write(login_config_path, toml::to_string(&save_data).unwrap()).unwrap();
+                            },
+                            Err(_) => panic!("Failed to create a login file"),
+                        }
+                        save_data
+                    }
+                }
             }
         },
         None => panic!("Failed to get project directory"),
