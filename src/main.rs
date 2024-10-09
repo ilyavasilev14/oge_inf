@@ -9,6 +9,7 @@ use excersise::excersise_10::Excersise10;
 use excersise::excersise_14::Excersise14;
 use excersise::excersise_2::Excersise2;
 use excersise::exercise_4::Excersise4;
+use excersise::exercise_8::Excersise8;
 use excersise::Exercise;
 use excersise::excersise_12::Excersise12;
 use excersise::excersise_15::Excersise15;
@@ -47,6 +48,9 @@ enum AppState {
     Excersise1,
     Excersise1Learning,
     Excersise1Practice,
+    Excersise2,
+    Excersise2Practice,
+    Excersise2Learning,
     Excersise3,
     Excersise3Learning,
     Excersise3Practice,
@@ -62,6 +66,9 @@ enum AppState {
     Excersise7,
     Excersise7Learning,
     Excersise7Practice,
+    Excersise8,
+    Excersise8Learning,
+    Excersise8Practice,
     Excersise12,
     Excersise12Learning,
     Excersise12Practice,
@@ -71,9 +78,6 @@ enum AppState {
     Excersise10Practice,
     Excersise10Learning,
     Excersise10,
-    Excersise2Practice,
-    Excersise2Learning,
-    Excersise2,
     Excersise14Practice,
     Excersise14Learning,
     Excersise14,
@@ -145,6 +149,9 @@ impl App {
                     },
                     7 => {
                         self.state = AppState::Excersise7Practice;
+                    },
+                    8 => {
+                        self.state = AppState::Excersise8Practice;
                     },
                     10 => {
                         self.state = AppState::Excersise10Practice;
@@ -302,6 +309,7 @@ impl App {
                     5 => self.state = AppState::Excersise5Learning,
                     6 => self.state = AppState::Excersise6Learning,
                     7 => self.state = AppState::Excersise7Learning,
+                    8 => self.state = AppState::Excersise8Learning,
                     10 => self.state = AppState::Excersise10Learning,
                     12 => self.state = AppState::Excersise12Learning,
                     14 => self.state = AppState::Excersise14Learning,
@@ -343,6 +351,9 @@ impl App {
             AppState::Excersise7 => Excersise7::select_subexcersise_view(save.total_done_excersise7, save.done_correctly_excersise7),
             AppState::Excersise7Learning => Excersise7::learning_view(),
             AppState::Excersise7Practice => Excersise7::practice_view(self.exersise_data.clone()),
+            AppState::Excersise8 => Excersise8::select_subexcersise_view(save.total_done_excersise8, save.done_correctly_excersise8),
+            AppState::Excersise8Learning => Excersise8::learning_view(),
+            AppState::Excersise8Practice => Excersise8::practice_view(self.exersise_data.clone()),
             AppState::Excersise12 => Excersise12::select_subexcersise_view(save.total_done_excersise12, save.done_correctly_excersise12),
             AppState::Excersise12Learning => Excersise12::learning_view(),
             AppState::Excersise12Practice => Excersise12::practice_view(self.exersise_data.clone()),
@@ -370,6 +381,7 @@ impl App {
             5 => self.state = AppState::Excersise5,
             6 => self.state = AppState::Excersise6,
             7 => self.state = AppState::Excersise7,
+            8 => self.state = AppState::Excersise8,
             10 => self.state = AppState::Excersise10,
             12 => self.state = AppState::Excersise12,
             14 => self.state = AppState::Excersise14,
@@ -433,7 +445,8 @@ impl App {
                         .on_press(Message::SelectedExcersise(7)),
                     button(text("8").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
-                        .height(Length::Fixed(80.0)),
+                        .height(Length::Fixed(80.0))
+                        .on_press(Message::SelectedExcersise(8)),
                     button(text("9").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0)),
@@ -492,6 +505,17 @@ pub struct ExerciseData {
     input_field_text: String,
     state: ExcerciseState,
     additional_data: Vec<AdditionalData>
+}
+
+impl ExerciseData {
+    /// panics if the additional data type is not i32
+    fn additional_data_to_i32_unsafe(&self, index: usize) -> i32 {
+        if let AdditionalData::I32(value) = self.additional_data[index] {
+            value
+        } else {
+            panic!("additional_data_to_i32_unsafe panic: the data type of the value is not i32")
+        }
+    }
 }
 
 #[derive(Clone, Debug)]

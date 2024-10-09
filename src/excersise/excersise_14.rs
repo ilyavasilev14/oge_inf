@@ -158,7 +158,8 @@ fn generate_excersise() -> ExerciseData {
     for score in &avg_class_scores {
         avg_score += *score as f32;
     };
-    dbg!(&avg_score);
+    dbg!(avg_class_scores.len());
+    dbg!(avg_score / avg_class_scores.len() as f32);
     let avg_score: f32 = ((avg_score / avg_class_scores.len() as f32) * 100.0).round() / 100.0;
     dbg!(&avg_score);
 

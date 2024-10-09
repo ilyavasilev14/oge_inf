@@ -9,6 +9,7 @@ pub mod exercise_4;
 pub mod excersise_5;
 pub mod excersise_6;
 pub mod excersise_7;
+pub mod exercise_8;
 pub mod excersise_10;
 pub mod excersise_12;
 pub mod excersise_14;
@@ -132,7 +133,7 @@ pub trait Exercise {
     fn learning_view<'a>() -> iced::Element<'a, Message>;
 
     fn text_size() -> u16 {
-        48
+        32
     }
 
     fn select_subexcersise() -> Message;
