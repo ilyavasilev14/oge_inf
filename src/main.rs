@@ -6,6 +6,7 @@ use calamine::{Data, Reader, Xlsx};
 use directories::UserDirs;
 use exercise::exercise_1::Excersise1;
 use exercise::exercise_10::Excersise10;
+use exercise::exercise_11::Excersise11;
 use exercise::exercise_14::Excersise14;
 use exercise::exercise_2::Excersise2;
 use exercise::exercise_4::Excersise4;
@@ -75,9 +76,12 @@ enum AppState {
     Excersise15,
     Excersise15Learning,
     Excersise15Practice,
-    Excersise10Practice,
-    Excersise10Learning,
     Excersise10,
+    Excersise10Learning,
+    Excersise10Practice,
+    Excersise11,
+    Excersise11Learning,
+    Excersise11Practice,
     Excersise14Practice,
     Excersise14Learning,
     Excersise14,
@@ -155,6 +159,9 @@ impl App {
                     },
                     10 => {
                         self.state = AppState::Excersise10Practice;
+                    },
+                    11 => {
+                        self.state = AppState::Excersise11Practice;
                     },
                     12 => {
                         self.state = AppState::Excersise12Practice;
@@ -311,6 +318,7 @@ impl App {
                     7 => self.state = AppState::Excersise7Learning,
                     8 => self.state = AppState::Excersise8Learning,
                     10 => self.state = AppState::Excersise10Learning,
+                    11 => self.state = AppState::Excersise11Learning,
                     12 => self.state = AppState::Excersise12Learning,
                     14 => self.state = AppState::Excersise14Learning,
                     15 => self.state = AppState::Excersise15Learning,
@@ -366,6 +374,9 @@ impl App {
             AppState::Excersise10=> Excersise10::select_subexercise_view(save.total_done_exercise10, save.done_correctly_exercise10),
             AppState::Excersise10Learning => Excersise10::learning_view(),
             AppState::Excersise10Practice => Excersise10::practice_view(self.exersise_data.clone()),
+            AppState::Excersise11 => Excersise11::select_subexercise_view(save.total_done_exercise10, save.done_correctly_exercise10),
+            AppState::Excersise11Learning => Excersise11::learning_view(),
+            AppState::Excersise11Practice => Excersise11::practice_view(self.exersise_data.clone()),
         }
     }
 }
@@ -383,6 +394,7 @@ impl App {
             7 => self.state = AppState::Excersise7,
             8 => self.state = AppState::Excersise8,
             10 => self.state = AppState::Excersise10,
+            11 => self.state = AppState::Excersise11,
             12 => self.state = AppState::Excersise12,
             14 => self.state = AppState::Excersise14,
             15 => self.state = AppState::Excersise15,
@@ -458,7 +470,8 @@ impl App {
                 row![
                     button(text("11").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
-                        .height(Length::Fixed(80.0)),
+                        .height(Length::Fixed(80.0))
+                        .on_press(Message::SelectedExcersise(11)),
                     button(text("12").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
