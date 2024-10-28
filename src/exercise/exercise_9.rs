@@ -1,10 +1,10 @@
-use std::{collections::HashMap, f32::consts::PI};
+use std::collections::HashMap;
 
 use font_kit::{family_name::FamilyName, font::Font, properties::Properties, source::SystemSource};
-use iced::{font::Weight, widget::{self, button, canvas::{self, path::{self, lyon_path::{self, geom::{self, Angle}}}}, column, container, scrollable, text, Image}};
+use iced::widget::{button, column, container, scrollable, text, Image};
 use rand::{seq::SliceRandom, thread_rng, Rng};
-use raqote::{Color, DrawOptions, DrawTarget, PathBuilder, SolidSource, Source, StrokeStyle, Transform};
-use crate::{Message, ExerciseData, ExcerciseState};
+use raqote::{DrawOptions, DrawTarget, PathBuilder, SolidSource, Source, StrokeStyle};
+use crate::{Message, ExerciseData};
 use super::Exercise;
 
 
@@ -68,6 +68,7 @@ fn generate_exercise() {
         .unwrap()
         .load()
         .unwrap();
+
     let a_position = raqote::Point::new(50.0, 300.0);
     let b_position = raqote::Point::new(300.0, 50.0);
     let v_position = raqote::Point::new(350.0, 300.0);
@@ -94,6 +95,7 @@ fn generate_exercise() {
     draw_text("Е", &mut dt, &font, e_position);
     draw_text("К", &mut dt, &font, k_position);
 
+    let mut graph: HashMap<&str, Vec<&str>> = HashMap::new();
     for letter in letters {
         let mut possible_connections = possible_letters_connections[letter].clone();
         possible_connections.shuffle(&mut thread_rng());
@@ -127,12 +129,21 @@ fn generate_exercise() {
                 _ => unreachable!(),
             };
 
+            match graph.get_mut(letter) {
+                Some(connections) => connections.push(connection),
+                None => {
+                    graph.insert(letter, vec![connection]);
+                },
+            }
             draw_arrow(&mut dt, start_position, finish_position);
         }
     }
 
+    let answer = paths_count(&graph);
     dt.write_png("/tmp/oge_training_exercise_9.png").expect("Failed to save an exercise 9 image!");
 }
+
+
 
 fn draw_text(text: &str, dt: &mut DrawTarget, font: &Font, position: raqote::Point) {
     dt.draw_text(
@@ -271,3 +282,34 @@ enum ArrowDirection {
     Down,
     Up
 }
+
+fn paths_count(graph: &HashMap<&str, Vec<&str>>) -> u32 {
+    let mut paths_count = 0;
+    let mut queue = Vec::new();
+    queue.push(("А", vec![]));
+
+    while queue.len() > 0 {
+        let node = queue[0].0;
+        let mut already_visited = queue[0].1.clone();
+
+        let destinations = graph.get(node);
+        if let Some(destinations) = destinations {
+            for destination in destinations {
+                if already_visited.contains(destination) {
+                    continue;
+                }
+
+                if *destination == "К" {
+                    paths_count += 1;
+                } else {
+                    already_visited.push(node.into());
+                    queue.push((destination, already_visited.clone()));
+                }
+            }
+        }
+        queue.remove(0);
+    }
+
+    paths_count
+}
+

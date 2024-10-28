@@ -324,6 +324,7 @@ impl App {
                     6 => self.state = AppState::Excersise6Learning,
                     7 => self.state = AppState::Excersise7Learning,
                     8 => self.state = AppState::Excersise8Learning,
+                    9 => self.state = AppState::Excersise9Learning,
                     10 => self.state = AppState::Excersise10Learning,
                     11 => self.state = AppState::Excersise11Learning,
                     12 => self.state = AppState::Excersise12Learning,
