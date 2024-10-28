@@ -11,6 +11,7 @@ use exercise::exercise_14::Excersise14;
 use exercise::exercise_2::Excersise2;
 use exercise::exercise_4::Excersise4;
 use exercise::exercise_8::Excersise8;
+use exercise::exercise_9::Excersise9;
 use exercise::Exercise;
 use exercise::exercise_12::Excersise12;
 use exercise::exercise_15::Excersise15;
@@ -85,6 +86,9 @@ enum AppState {
     Excersise14Practice,
     Excersise14Learning,
     Excersise14,
+    Excersise9Practice,
+    Excersise9Learning,
+    Excersise9,
 }
 
 #[derive(Debug, Clone)]
@@ -156,6 +160,9 @@ impl App {
                     },
                     8 => {
                         self.state = AppState::Excersise8Practice;
+                    },
+                    9 => {
+                        self.state = AppState::Excersise9Practice;
                     },
                     10 => {
                         self.state = AppState::Excersise10Practice;
@@ -362,6 +369,9 @@ impl App {
             AppState::Excersise8 => Excersise8::select_subexercise_view(save.total_done_exercise8, save.done_correctly_exercise8),
             AppState::Excersise8Learning => Excersise8::learning_view(),
             AppState::Excersise8Practice => Excersise8::practice_view(self.exersise_data.clone()),
+            AppState::Excersise9 => Excersise9::select_subexercise_view(save.total_done_exercise9, save.done_correctly_exercise9),
+            AppState::Excersise9Learning => Excersise9::learning_view(),
+            AppState::Excersise9Practice => Excersise9::practice_view(self.exersise_data.clone()),
             AppState::Excersise12 => Excersise12::select_subexercise_view(save.total_done_exercise12, save.done_correctly_exercise12),
             AppState::Excersise12Learning => Excersise12::learning_view(),
             AppState::Excersise12Practice => Excersise12::practice_view(self.exersise_data.clone()),
@@ -393,6 +403,7 @@ impl App {
             6 => self.state = AppState::Excersise6,
             7 => self.state = AppState::Excersise7,
             8 => self.state = AppState::Excersise8,
+            9 => self.state = AppState::Excersise9,
             10 => self.state = AppState::Excersise10,
             11 => self.state = AppState::Excersise11,
             12 => self.state = AppState::Excersise12,
@@ -461,7 +472,8 @@ impl App {
                         .on_press(Message::SelectedExcersise(8)),
                     button(text("9").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
-                        .height(Length::Fixed(80.0)),
+                        .height(Length::Fixed(80.0))
+                        .on_press(Message::SelectedExcersise(9)),
                     button(text("10").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
