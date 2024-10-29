@@ -140,6 +140,7 @@ fn generate_exercise() {
     }
 
     let answer = paths_count(&graph);
+    dbg!(answer);
     dt.write_png("/tmp/oge_training_exercise_9.png").expect("Failed to save an exercise 9 image!");
 }
 
