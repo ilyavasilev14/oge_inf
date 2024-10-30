@@ -1,4 +1,4 @@
-use iced::{alignment::{Horizontal, Vertical}, widget::{button, column, container, text, text_input, Image}, Alignment, Length};
+use iced::{alignment::{Horizontal, Vertical}, widget::{button, column, container, image::Handle, text, text_input, Image}, Alignment, Length};
 use rand::{Rng, distributions::{Distribution, Standard}};
 use crate::{Message, ExerciseData, ExcerciseState};
 
@@ -10,6 +10,7 @@ pub mod exercise_5;
 pub mod exercise_6;
 pub mod exercise_7;
 pub mod exercise_8;
+pub mod exercise_9;
 pub mod exercise_10;
 pub mod exercise_11;
 pub mod exercise_12;
@@ -37,9 +38,10 @@ pub trait Exercise {
             .width(Length::Fill)
             .height(Length::Fill);
 
+        let image_handle = Handle::from_bytes(include_bytes!("../back_arrow.png").to_vec());
         let main_container = container(
             column![
-                button(Image::new("back_arrow.png").width(100).height(100)).on_press(Message::OpenExcersiseList),
+                button(Image::new(image_handle).width(100).height(100)).on_press(Message::OpenExcersiseList),
                 buttons_container,
                 text(format!("Решено всего: {}", done_totally)).size(48).align_x(Horizontal::Center),
                 text(format!("Решено правильно: {}({}%)", done_correctly, done_correctly_percent))
@@ -70,8 +72,9 @@ pub trait Exercise {
                     ].align_x(Alignment::Center).spacing(15)
                 ).center(Length::Fill);
 
+            let image_handle = Handle::from_bytes(include_bytes!("../back_arrow.png").to_vec());
             let underlay = container(column![
-                button(Image::new("back_arrow.png").width(100).height(100)).on_press(Self::select_excersise()),
+                button(Image::new(image_handle).width(100).height(100)).on_press(Self::select_excersise()),
                 exercise_container,
             ]);
 

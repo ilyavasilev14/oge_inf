@@ -31,10 +31,11 @@ impl Exercise for Excersise8 {
         println!("practice view");
         dbg!(&excersise_data);
         if let Some(excersise_data) = excersise_data {
-            let text1: String = excersise_data.additional_data_to_i32_unsafe(0).to_string();
-            let text2: String = excersise_data.additional_data_to_i32_unsafe(1).to_string();
-            let text3: String = excersise_data.additional_data_to_i32_unsafe(2).to_string();
-            let exercise_type = excersise_data.additional_data_to_i32_unsafe(3);
+            let text1: String = unsafe { excersise_data.additional_data_to_i32_unsafe(0).to_string() };
+            let text2: String = unsafe { excersise_data.additional_data_to_i32_unsafe(1).to_string() };
+            let text3: String = unsafe { excersise_data.additional_data_to_i32_unsafe(2).to_string() };
+            let exercise_type = unsafe { excersise_data.additional_data_to_i32_unsafe(3) };
+
             let excersise_container = container(
                 column![
                 text(excersise_data.title).size(Self::text_size()).align_x(Horizontal::Center).align_y(Vertical::Center).center(),
