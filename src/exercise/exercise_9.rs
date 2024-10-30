@@ -1,10 +1,9 @@
-use std::collections::HashMap;
-
+use std::{collections::HashMap, time::SystemTime};
 use font_kit::{family_name::FamilyName, font::Font, properties::Properties, source::SystemSource};
-use iced::widget::{button, column, container, scrollable, text, Image};
+use iced::{alignment::{Horizontal, Vertical}, widget::{button, column, container, image::Handle, scrollable, text, text_input, Image}, Alignment, Length};
 use rand::{seq::SliceRandom, thread_rng, Rng};
 use raqote::{DrawOptions, DrawTarget, PathBuilder, SolidSource, Source, StrokeStyle};
-use crate::{Message, ExerciseData};
+use crate::{AdditionalData, ExcerciseState, ExerciseData, Message};
 use super::Exercise;
 
 
@@ -30,9 +29,89 @@ impl Exercise for Excersise9 {
         cont
     }
 
+    fn practice_view<'a>(exercise_data: Option<ExerciseData>) -> iced::Element<'a, Message> {
+        println!("practice view");
+        if let Some(exercise_data) = exercise_data {
+            let image: Image<Handle> = unsafe { Image::new(exercise_data.additional_data_to_string_unsafe(0)) };
+            let exercise_container = container(
+                column![
+                    text(exercise_data.title).size(Self::text_size()).align_x(Horizontal::Center).align_y(Vertical::Center).center(),
+                    image.width(433).height(200),
+                    text_input("Ответ", &exercise_data.input_field_text)
+                        .align_x(Alignment::Center)
+                        .width(Length::Fixed(500.0))
+                        .size(48)
+                        .on_input(|text| Message::ExcersiseTextInput(text)),
+
+                    button(text("Проверить ответ")
+                        .size(48)
+                        .center())
+                        .width(Length::Fixed(500.0))
+                        .height(Length::Fixed(80.0))
+                        .on_press(Message::CheckAnswer),
+                    ].align_x(Alignment::Center).spacing(15)
+                ).center(Length::Fill);
+
+            let image_handle = Handle::from_bytes(include_bytes!("../back_arrow.png").to_vec());
+            let underlay = container(column![
+                button(Image::new(image_handle).width(100).height(100)).on_press(Self::select_excersise()),
+                exercise_container,
+            ]);
+
+            match exercise_data.state {
+                ExcerciseState::NotDone => underlay.into(),
+                ExcerciseState::WrongAnswer => {
+                    if Self::show_right_answer() {
+                        container(
+                            column![
+                                text(format!("Задание решено неверно!\nПравильный ответ: {}", exercise_data.right_answer))
+                                    .size(48).align_x(Horizontal::Center),
+                                    button(text("Новое задание").align_x(Horizontal::Center).size(48))
+                                        .on_press(Self::new_excersise(false)).width(500),
+                            ]
+                                .align_x(Alignment::Center)
+                                .spacing(15)
+                        ).center(Length::Fill)
+                    } else {
+                        container(
+                            column![
+                                text("Задание решено неверно!")
+                                    .size(48).align_x(Horizontal::Center),
+                                button(text("Новое задание").align_x(Horizontal::Center).size(48))
+                                    .on_press(Self::new_excersise(false)).width(500),
+                            ]
+                            .spacing(15)
+                        ).center(Length::Fill)
+                    }.into()
+                },
+                ExcerciseState::RightAnswer => 
+                    container(
+                        column![
+                            text("Задание решено верно!").size(48),
+                            button(text("Новое задание").size(48).align_x(Horizontal::Center))
+                                .on_press(Self::new_excersise(true)).width(500),
+                        ]
+                        .spacing(15)
+                        .align_x(Alignment::Center)
+                    ).center(Length::Fill).into(),
+                ExcerciseState::NanAnswer =>
+                    container(
+                        column![
+                            text("Введите число в ответ задания").size(48),
+                            button(text("Исправить ответ").size(48).align_x(Horizontal::Center))
+                                .on_press(Message::SetState(ExcerciseState::NotDone)).width(500)
+                        ]
+                        .align_x(Alignment::Center)
+                        .spacing(15)
+                    ).center(Length::Fill).into(),
+            }
+        } else {
+            text("NO EXCERSISE DATA").into()
+        }
+    }
+
     fn generate_random_excersise() -> ExerciseData {
-        generate_exercise();
-        todo!()
+        generate_exercise()
     }
 
     fn select_subexcersise() -> Message {
@@ -57,8 +136,8 @@ impl Exercise for Excersise9 {
 }
 
 
-fn generate_exercise() {
-    let mut dt = DrawTarget::new(650, 600);
+fn generate_exercise() -> ExerciseData {
+    let mut dt = DrawTarget::new(650, 300);
 
     let font = SystemSource::new()
         .select_best_match(
@@ -69,13 +148,13 @@ fn generate_exercise() {
         .load()
         .unwrap();
 
-    let a_position = raqote::Point::new(50.0, 300.0);
+    let a_position = raqote::Point::new(50.0, 150.0);
     let b_position = raqote::Point::new(300.0, 50.0);
-    let v_position = raqote::Point::new(350.0, 300.0);
-    let g_position = raqote::Point::new(300.0, 550.0);
+    let v_position = raqote::Point::new(350.0, 150.0);
+    let g_position = raqote::Point::new(300.0, 250.0);
     let d_position = raqote::Point::new(550.0, 50.0);
-    let e_position = raqote::Point::new(550.0, 550.0);
-    let k_position = raqote::Point::new(600.0, 300.0);
+    let e_position = raqote::Point::new(550.0, 250.0);
+    let k_position = raqote::Point::new(600.0, 150.0);
 
     // k is excluded because it won't connect to anything anyways
     let letters = vec!["А", "Б", "В", "Г", "Д", "Е"]; 
@@ -139,9 +218,21 @@ fn generate_exercise() {
         }
     }
 
-    let answer = paths_count(&graph);
-    dbg!(answer);
-    dt.write_png("/tmp/oge_training_exercise_9.png").expect("Failed to save an exercise 9 image!");
+    let right_answer = paths_count(&graph).to_string();
+    dbg!(&right_answer);
+    let unix_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs().to_string();
+    let file_name = "/tmp/oge_traning_9_".to_string() + &unix_time + ".png";
+    dt.write_png(file_name.clone()).expect("Failed to save an exercise 9 image!");
+
+    let title = "На рисунке изображена схема дорог, связывающих города А, Б, В, Г, Д, Е, К. По каждой дороге можно двигаться только в одном направлении, указанном стрелкой. Сколько существует различных путей из города А в город К?".into();
+
+    ExerciseData {
+        title,
+        right_answer,
+        input_field_text: String::new(),
+        state: ExcerciseState::NotDone,
+        additional_data: vec![AdditionalData::String(file_name)],
+    }
 }
 
 

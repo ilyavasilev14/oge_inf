@@ -535,11 +535,19 @@ pub struct ExerciseData {
 
 impl ExerciseData {
     /// panics if the additional data type is not i32
-    fn additional_data_to_i32_unsafe(&self, index: usize) -> i32 {
+    unsafe fn additional_data_to_i32_unsafe(&self, index: usize) -> i32 {
         if let AdditionalData::I32(value) = self.additional_data[index] {
             value
         } else {
             panic!("additional_data_to_i32_unsafe panic: the data type of the value is not i32")
+        }
+    }
+
+    unsafe fn additional_data_to_string_unsafe(&self, index: usize) -> String {
+        if let AdditionalData::String(value) = self.additional_data[index].clone() {
+            value
+        } else {
+            panic!("additional_data_to_i32_unsafe panic: the data type of the value is not string")
         }
     }
 }
@@ -555,6 +563,7 @@ pub enum ExcerciseState {
 #[derive(Clone, Debug)]
 pub enum AdditionalData {
     I32(i32),
+    String(String),
     Vec(Vec<AdditionalData>),
     Graph(HashMap<String, Vec<(String, u32)>>),
 }
