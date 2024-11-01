@@ -20,7 +20,7 @@ use exercise::exercise_5::Excersise5;
 use exercise::exercise_6::Excersise6;
 use exercise::exercise_7::Excersise7;
 use iced::alignment::{Horizontal, Vertical};
-use iced::widget::{column, text_input, button, text, container, row};
+use iced::widget::{button, column, container, row, text, text_input, Column, Text};
 use iced::{Alignment, Length};
 use login::SaveData;
 
@@ -29,6 +29,8 @@ use crate::login::{init_login, save_login_data, increment_done_correctly_exercis
 
 mod login;
 mod exercise;
+pub static mut IS_A_TEST: bool = false;
+pub static mut EXERCISES_DONE_RIGHT: Vec<u8> = Vec::new();
 
 fn main() {
     let run_result = iced::run("Тренажёр для ОГЭ по информатике", App::update, App::view);
@@ -41,7 +43,7 @@ struct App {
     login: String, 
     state: AppState,
     save: SaveData,
-    exersise_data: Option<ExerciseData>
+    exercise_data: Option<ExerciseData>
 }
 
 enum AppState {
@@ -89,6 +91,7 @@ enum AppState {
     Excersise9Practice,
     Excersise9Learning,
     Excersise9,
+    TestResults,
 }
 
 #[derive(Debug, Clone)]
@@ -110,11 +113,13 @@ enum Message {
     /// exercise14answer serialized to toml
     Excersise14CheckAnswer,
     SelectedLearningExcersise(i32),
+    CreateATest,
+    ShowTestResults
 }
 
 impl Default for App {
     fn default() -> Self {
-        Self { login: "".into(), state: AppState::Login, exersise_data: None, save: SaveData::default() }
+        Self { login: "".into(), state: AppState::Login, exercise_data: None, save: SaveData::default() }
     }
 }
 
@@ -132,63 +137,36 @@ impl App {
             },
             Message::LoginChanged(new_text) => self.login = new_text.into(),
             Message::SelectedExcersise(exercise_number) => {
+                unsafe { IS_A_TEST = false }
                 self.handle_selecting_exercise(*exercise_number);
             }
             Message::SelectedSubExcersise(exercise_number, exercise_data) => {
-                self.exersise_data = Some(exercise_data.clone());
+                self.exercise_data = Some(exercise_data.clone());
                 match exercise_number {
-                    1 => {
-                        self.state = AppState::Excersise1Practice;
-                    },
-                    2 => {
-                        self.state = AppState::Excersise2Practice;
-                    },
-                    3 => {
-                        self.state = AppState::Excersise3Practice;
-                    },
-                    4 => {
-                        self.state = AppState::Excersise4Practice;
-                    },
-                    5 => {
-                        self.state = AppState::Excersise5Practice;
-                    },
-                    6 => {
-                        self.state = AppState::Excersise6Practice;
-                    },
-                    7 => {
-                        self.state = AppState::Excersise7Practice;
-                    },
-                    8 => {
-                        self.state = AppState::Excersise8Practice;
-                    },
-                    9 => {
-                        self.state = AppState::Excersise9Practice;
-                    },
-                    10 => {
-                        self.state = AppState::Excersise10Practice;
-                    },
-                    11 => {
-                        self.state = AppState::Excersise11Practice;
-                    },
-                    12 => {
-                        self.state = AppState::Excersise12Practice;
-                    },
-                    14 => {
-                        self.state = AppState::Excersise14Practice;
-                    },
-                    15 => {
-                        self.state = AppState::Excersise15Practice;
-                    },
+                    1 => self.state = AppState::Excersise1Practice,
+                    2 => self.state = AppState::Excersise2Practice,
+                    3 => self.state = AppState::Excersise3Practice,
+                    4 => self.state = AppState::Excersise4Practice,
+                    5 => self.state = AppState::Excersise5Practice,
+                    6 => self.state = AppState::Excersise6Practice,
+                    7 => self.state = AppState::Excersise7Practice,
+                    8 => self.state = AppState::Excersise8Practice,
+                    9 => self.state = AppState::Excersise9Practice,
+                    10 => self.state = AppState::Excersise10Practice,
+                    11 => self.state = AppState::Excersise11Practice,
+                    12 => self.state = AppState::Excersise12Practice,
+                    14 => self.state = AppState::Excersise14Practice,
+                    15 => self.state = AppState::Excersise15Practice,
                     _ => todo!()
                 }
             }
             Message::ExcersiseTextInput(text) => {
-                if let Some(exercise_data) = &mut self.exersise_data {
+                if let Some(exercise_data) = &mut self.exercise_data {
                     exercise_data.input_field_text = text.into();
                 }
             }
             Message::CheckAnswer => {
-                if let Some(exercise_data) = &mut self.exersise_data {
+                if let Some(exercise_data) = &mut self.exercise_data {
                     if exercise_data.input_field_text == exercise_data.right_answer {
                         exercise_data.state = ExcerciseState::RightAnswer;
                     } else {
@@ -197,7 +175,7 @@ impl App {
                 }
             },
             Message::SetState(state) => {
-                if let Some(exercise_data) = &mut self.exersise_data {
+                if let Some(exercise_data) = &mut self.exercise_data {
                     exercise_data.state = state.to_owned();
                 }
                 save_login_data(&self.save);
@@ -248,9 +226,9 @@ impl App {
                     dbg!(&output_str);
                     dbg!(&expected_output);
                     if output_str == expected_output {
-                        self.exersise_data.as_mut().unwrap().state = ExcerciseState::RightAnswer;
+                        self.exercise_data.as_mut().unwrap().state = ExcerciseState::RightAnswer;
                     } else {
-                        self.exersise_data.as_mut().unwrap().state = ExcerciseState::WrongAnswer;
+                        self.exercise_data.as_mut().unwrap().state = ExcerciseState::WrongAnswer;
                     }
 
                     Command::new("killall")
@@ -266,7 +244,7 @@ impl App {
                 }
             },
             Message::Excersise14CheckAnswer => {
-                if let Some(exersise_data) = &mut self.exersise_data {
+                if let Some(exersise_data) = &mut self.exercise_data {
                     let answer = toml::from_str::<Exersise14Answer>(&exersise_data.right_answer).unwrap();
                     dbg!(&answer);
                     if let Some(user_dirs) = UserDirs::new() {
@@ -333,6 +311,16 @@ impl App {
                     _ => todo!()
                 }
             },
+            Message::CreateATest => {
+                self.exercise_data = Some(num_to_exercise_data(1));
+                self.state = AppState::Excersise1Practice;
+                unsafe { IS_A_TEST = true }
+            },
+            Message::ShowTestResults => {
+                self.state = AppState::TestResults;
+                dbg!(unsafe { EXERCISES_DONE_RIGHT.clone() });
+                unsafe { IS_A_TEST = false }
+            },
         };
 
         println!("{:?}", message);
@@ -348,46 +336,47 @@ impl App {
             AppState::ChoosingExcersise => self.choosing_view(),
             AppState::Excersise1 => Excersise1::select_subexercise_view(save.total_done_exercise1, save.done_correctly_exercise1),
             AppState::Excersise1Learning => Excersise1::learning_view(),
-            AppState::Excersise1Practice => Excersise1::practice_view(self.exersise_data.clone()),
+            AppState::Excersise1Practice => Excersise1::practice_view(self.exercise_data.clone()),
             AppState::Excersise2 => Excersise2::select_subexercise_view(save.total_done_exercise2, save.done_correctly_exercise2),
             AppState::Excersise2Learning => Excersise2::learning_view(),
-            AppState::Excersise2Practice => Excersise2::practice_view(self.exersise_data.clone()),
+            AppState::Excersise2Practice => Excersise2::practice_view(self.exercise_data.clone()),
             AppState::Excersise3 => Excersise3::select_subexercise_view(save.total_done_exercise3, save.done_correctly_exercise3),
             AppState::Excersise3Learning => Excersise3::learning_view(),
-            AppState::Excersise3Practice => Excersise3::practice_view(self.exersise_data.clone()),
+            AppState::Excersise3Practice => Excersise3::practice_view(self.exercise_data.clone()),
             AppState::Excersise4 => Excersise4::select_subexercise_view(save.total_done_exercise4, save.done_correctly_exercise4),
             AppState::Excersise4Learning => Excersise4::learning_view(),
-            AppState::Excersise4Practice => Excersise4::practice_view(self.exersise_data.clone()),
+            AppState::Excersise4Practice => Excersise4::practice_view(self.exercise_data.clone()),
             AppState::Excersise5 => Excersise5::select_subexercise_view(save.total_done_exercise5, save.done_correctly_exercise5),
             AppState::Excersise5Learning => Excersise5::learning_view(),
-            AppState::Excersise5Practice => Excersise5::practice_view(self.exersise_data.clone()),
+            AppState::Excersise5Practice => Excersise5::practice_view(self.exercise_data.clone()),
             AppState::Excersise6 => Excersise6::select_subexercise_view(save.total_done_exercise6, save.done_correctly_exercise6),
             AppState::Excersise6Learning => Excersise6::learning_view(),
-            AppState::Excersise6Practice => Excersise6::practice_view(self.exersise_data.clone()),
+            AppState::Excersise6Practice => Excersise6::practice_view(self.exercise_data.clone()),
             AppState::Excersise7 => Excersise7::select_subexercise_view(save.total_done_exercise7, save.done_correctly_exercise7),
             AppState::Excersise7Learning => Excersise7::learning_view(),
-            AppState::Excersise7Practice => Excersise7::practice_view(self.exersise_data.clone()),
+            AppState::Excersise7Practice => Excersise7::practice_view(self.exercise_data.clone()),
             AppState::Excersise8 => Excersise8::select_subexercise_view(save.total_done_exercise8, save.done_correctly_exercise8),
             AppState::Excersise8Learning => Excersise8::learning_view(),
-            AppState::Excersise8Practice => Excersise8::practice_view(self.exersise_data.clone()),
+            AppState::Excersise8Practice => Excersise8::practice_view(self.exercise_data.clone()),
             AppState::Excersise9 => Excersise9::select_subexercise_view(save.total_done_exercise9, save.done_correctly_exercise9),
             AppState::Excersise9Learning => Excersise9::learning_view(),
-            AppState::Excersise9Practice => Excersise9::practice_view(self.exersise_data.clone()),
+            AppState::Excersise9Practice => Excersise9::practice_view(self.exercise_data.clone()),
             AppState::Excersise12 => Excersise12::select_subexercise_view(save.total_done_exercise12, save.done_correctly_exercise12),
             AppState::Excersise12Learning => Excersise12::learning_view(),
-            AppState::Excersise12Practice => Excersise12::practice_view(self.exersise_data.clone()),
+            AppState::Excersise12Practice => Excersise12::practice_view(self.exercise_data.clone()),
             AppState::Excersise14 => Excersise14::select_subexercise_view(save.total_done_exercise12, save.done_correctly_exercise12),
             AppState::Excersise14Learning => Excersise14::learning_view(),
-            AppState::Excersise14Practice => Excersise14::practice_view(self.exersise_data.clone()),
+            AppState::Excersise14Practice => Excersise14::practice_view(self.exercise_data.clone()),
             AppState::Excersise15 => Excersise15::select_subexercise_view(save.total_done_exercise15, save.done_correctly_exercise15),
             AppState::Excersise15Learning => Excersise15::learning_view(),
-            AppState::Excersise15Practice => Excersise15::practice_view(self.exersise_data.clone()),
+            AppState::Excersise15Practice => Excersise15::practice_view(self.exercise_data.clone()),
             AppState::Excersise10=> Excersise10::select_subexercise_view(save.total_done_exercise10, save.done_correctly_exercise10),
             AppState::Excersise10Learning => Excersise10::learning_view(),
-            AppState::Excersise10Practice => Excersise10::practice_view(self.exersise_data.clone()),
+            AppState::Excersise10Practice => Excersise10::practice_view(self.exercise_data.clone()),
             AppState::Excersise11 => Excersise11::select_subexercise_view(save.total_done_exercise10, save.done_correctly_exercise10),
             AppState::Excersise11Learning => Excersise11::learning_view(),
-            AppState::Excersise11Practice => Excersise11::practice_view(self.exersise_data.clone()),
+            AppState::Excersise11Practice => Excersise11::practice_view(self.exercise_data.clone()),
+            AppState::TestResults => self.test_results_view(),
         }
     }
 }
@@ -425,6 +414,35 @@ impl App {
                     .on_press(Message::OpenExcersiseList),
             ].spacing(15)
             .align_x(Alignment::Center)
+        )
+            .center(Length::Fill)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .into()
+    }
+
+    fn test_results_view(&self) -> iced::Element<'_, Message> {
+        let mut exercises_done_right_text = String::new();
+        let exercises_done_right_count_text = unsafe { EXERCISES_DONE_RIGHT.len().to_string() } + "/14";
+        for (idx, exercise) in unsafe { EXERCISES_DONE_RIGHT.clone().iter().enumerate() } {
+            if idx == 0 {
+                exercises_done_right_text += &exercise.to_string();
+                continue
+            }
+
+            exercises_done_right_text += ", ";
+            exercises_done_right_text += &exercise.to_string()
+        }
+
+        container(
+            column![
+                text("Верно решённые задания:").size(24),
+                text(exercises_done_right_text).size(24),
+                text(exercises_done_right_count_text).size(24),
+                button(text("Выбор задания").size(24))
+                    .width(Length::Fixed(250.0))
+                    .on_press(Message::OpenExcersiseList)
+            ].spacing(15)
         )
             .center(Length::Fill)
             .width(Length::Fill)
@@ -503,7 +521,8 @@ impl App {
                 ].spacing(15),
                 button(text("Составить вариант").size(40).align_x(Horizontal::Center).align_y(Vertical::Center))
                     .width(Length::Fixed(459.0))
-                    .height(Length::Fixed(80.0)),
+                    .height(Length::Fixed(80.0))
+                    .on_press(Message::CreateATest),
             ].spacing(15)
         )
         .center(Length::Fill)
@@ -566,4 +585,24 @@ pub enum AdditionalData {
     String(String),
     Vec(Vec<AdditionalData>),
     Graph(HashMap<String, Vec<(String, u32)>>),
+}
+
+pub fn num_to_exercise_data(num: u8) -> ExerciseData {
+    match num {
+        1 => exercise::exercise_1::Excersise1::generate_random_excersise(),
+        2 => exercise::exercise_2::Excersise2::generate_random_excersise(),
+        3 => exercise::exercise_3::Excersise3::generate_random_excersise(),
+        4 => exercise::exercise_4::Excersise4::generate_random_excersise(),
+        5 => exercise::exercise_5::Excersise5::generate_random_excersise(),
+        6 => exercise::exercise_6::Excersise6::generate_random_excersise(),
+        7 => exercise::exercise_7::Excersise7::generate_random_excersise(),
+        8 => exercise::exercise_8::Excersise8::generate_random_excersise(),
+        9 => exercise::exercise_9::Excersise9::generate_random_excersise(),
+        10 => exercise::exercise_10::Excersise10::generate_random_excersise(),
+        11 => exercise::exercise_11::Excersise11::generate_random_excersise(),
+        12 => exercise::exercise_12::Excersise12::generate_random_excersise(),
+        14 => exercise::exercise_14::Excersise14::generate_random_excersise(),
+        15 => exercise::exercise_15::Excersise15::generate_random_excersise(),
+        _ => panic!("Wrong use of the function num_to_exercise_data!")
+    }
 }

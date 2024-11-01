@@ -1,6 +1,6 @@
 use iced::{alignment::{Horizontal, Vertical}, widget::{button, column, container, image::Handle, text, text_input, Image}, Alignment, Length};
 use rand::{Rng, distributions::{Distribution, Standard}};
-use crate::{Message, ExerciseData, ExcerciseState};
+use crate::{num_to_exercise_data, ExcerciseState, ExerciseData, Message};
 
 pub mod exercise_1;
 pub mod exercise_2;
@@ -81,13 +81,25 @@ pub trait Exercise {
             match exercise_data.state {
                 ExcerciseState::NotDone => underlay.into(),
                 ExcerciseState::WrongAnswer => {
+                    let mut message = Self::new_excersise(false);
+
+                    if unsafe { super::IS_A_TEST } == true {
+                        let next_excersise = Self::exercise_number() + 1;
+                        if next_excersise > 15 {
+                            message = Message::ShowTestResults
+                        } else if next_excersise == 13 {
+                            message = Message::SelectedSubExcersise(14, num_to_exercise_data(14))
+                        } else {
+                            message = Message::SelectedSubExcersise(next_excersise, num_to_exercise_data(next_excersise))
+                        }
+                    }
                     if Self::show_right_answer() {
                         container(
                             column![
                                 text(format!("Задание решено неверно!\nПравильный ответ: {}", exercise_data.right_answer))
                                     .size(48).align_x(Horizontal::Center),
                                     button(text("Новое задание").align_x(Horizontal::Center).size(48))
-                                        .on_press(Self::new_excersise(false)).width(500),
+                                        .on_press(message).width(500),
                             ]
                                 .align_x(Alignment::Center)
                                 .spacing(15)
@@ -98,22 +110,39 @@ pub trait Exercise {
                                 text("Задание решено неверно!")
                                     .size(48).align_x(Horizontal::Center),
                                 button(text("Новое задание").align_x(Horizontal::Center).size(48))
-                                    .on_press(Self::new_excersise(false)).width(500),
+                                    .on_press(message).width(500),
                             ]
                             .spacing(15)
                         ).center(Length::Fill)
                     }.into()
                 },
-                ExcerciseState::RightAnswer => 
+                ExcerciseState::RightAnswer => {
+                    let mut message = Self::new_excersise(true);
+
+                    if unsafe { super::IS_A_TEST } == true {
+                        let next_excersise = Self::exercise_number() + 1;
+                        if next_excersise > 15 {
+                            message = Message::ShowTestResults;
+                            unsafe { super::EXERCISES_DONE_RIGHT.push(Self::exercise_number()); }
+                        } else if next_excersise == 13 {
+                            message = Message::SelectedSubExcersise(14, num_to_exercise_data(14));
+                            unsafe { super::EXERCISES_DONE_RIGHT.push(Self::exercise_number()); }
+                        } else {
+                            message = Message::SelectedSubExcersise(next_excersise, num_to_exercise_data(next_excersise));
+                            unsafe { super::EXERCISES_DONE_RIGHT.push(Self::exercise_number()); }
+                        }
+                    }
+
                     container(
                         column![
                             text("Задание решено верно!").size(48),
                             button(text("Новое задание").size(48).align_x(Horizontal::Center))
-                                .on_press(Self::new_excersise(true)).width(500),
+                                .on_press(message).width(500),
                         ]
                         .spacing(15)
                         .align_x(Alignment::Center)
-                    ).center(Length::Fill).into(),
+                    ).center(Length::Fill).into()
+                },
                 ExcerciseState::NanAnswer =>
                     container(
                         column![
