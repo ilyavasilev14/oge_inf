@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use iced::{alignment::{Horizontal, Vertical}, widget::{button, column, container, row, scrollable, text, text_input, Image}, Alignment, Length};
+use iced::{alignment::{Horizontal, Vertical}, widget::{button, column, container, image::Handle, row, scrollable, text, text_input, Image}, Alignment, Length};
 use rand::{seq::SliceRandom, thread_rng, Rng};
 use crate::{AdditionalData, ExcerciseState, ExerciseData, Message};
 use super::Exercise;
@@ -9,13 +9,30 @@ pub struct Excersise4 { }
 
 impl Exercise for Excersise4 {
     fn learning_view<'a>() -> iced::Element<'a, Message> {
-        let text: iced::Element<'a, Message> = text("Обучение для этого типа заданий в разработке")
+        let text1: iced::Element<'a, Message> = 
+            text("Из таблицы, которая предоставлена в задании, необходимо составить граф. Обозначьте все пункты точками,".to_string()
+                + " соедините те, между которыми есть дорога (пересечение в таблице) линиями")
             .size(Self::text_size())
             .center()
             .into();
+        let text2: iced::Element<'a, Message> = 
+            text("С помощью графа проще найти все возможные пути от пункта A до пункта E. Выпишите их так, как показано на изображении ниже.".to_string()
+                + "\nПосле этого, используя таблицу, найдите длины этих путей.")
+            .size(Self::text_size())
+            .center()
+            .into();
+        let image_1_handle = Handle::from_bytes(include_bytes!("../learning_exercises_assets/exercise_4_learning_1.png").to_vec());
+        let image1: Image<Handle> = Image::new(image_1_handle).width(757).height(247);
+        let image_2_handle = Handle::from_bytes(include_bytes!("../learning_exercises_assets/exercise_4_learning_2.png").to_vec());
+        let image2: Image<Handle> = Image::new(image_2_handle).width(757).height(606);
 
 
-        let scroll = scrollable(text);
+        let scroll = scrollable(column![
+            text1,
+            image1,
+            text2,
+            image2
+        ].align_x(Horizontal::Center).width(Length::Fill));
         let column = 
             column![
                 button(Image::new("back_arrow.png").width(100).height(100)).on_press(Message::OpenExcersiseList),
