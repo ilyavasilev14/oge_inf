@@ -1,4 +1,4 @@
-use iced::{alignment::{Horizontal, Vertical}, widget::{button, column, container, row, scrollable, text, text_input, Image}, Alignment, Length};
+use iced::{alignment::{Horizontal, Vertical}, widget::{button, column, container, image::Handle, row, scrollable, text, text_input, Image}, Alignment, Length};
 use rand::{thread_rng, Rng};
 use crate::{AdditionalData, ExcerciseState, ExerciseData, Message};
 use super::Exercise;
@@ -8,13 +8,20 @@ pub struct Excersise8 { }
 
 impl Exercise for Excersise8 {
     fn learning_view<'a>() -> iced::Element<'a, Message> {
-        let text: iced::Element<'a, Message> = text("Обучение для этого типа заданий в разработке")
+        let text: iced::Element<'a, Message> = 
+            text("Для того, чтобы наглядно изобразить запросы, нарисуйте 2 пересекающихся круга Эйлера.".to_string()
+                + " Укажите сегменты, как показано на изображении. Используя информацию, данную в таблице, найдите значения нужных секторов.")
             .size(Self::text_size())
             .center()
             .into();
+        let image_handle = Handle::from_bytes(include_bytes!("../learning_exercises_assets/exercise_8_learning.png").to_vec());
+        let image: Image<Handle> = Image::new(image_handle).width(900).height(300);
 
 
-        let scroll = scrollable(text);
+        let scroll = scrollable(column![
+            text,
+            image,
+        ].align_x(Horizontal::Center).width(Length::Fill));
         let column = 
             column![
                 button(Image::new("back_arrow.png").width(100).height(100)).on_press(Message::OpenExcersiseList),
