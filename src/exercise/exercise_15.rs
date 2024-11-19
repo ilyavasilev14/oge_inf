@@ -145,7 +145,7 @@ impl Exercise for Excersise15 {
     }
 
     fn text_size() -> u16 {
-        32
+        20
     }
 
     fn select_learning() -> Message {

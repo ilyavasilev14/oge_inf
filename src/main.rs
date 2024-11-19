@@ -20,7 +20,7 @@ use exercise::exercise_5::Excersise5;
 use exercise::exercise_6::Excersise6;
 use exercise::exercise_7::Excersise7;
 use iced::alignment::{Horizontal, Vertical};
-use iced::widget::{button, column, container, row, text, text_input, Column, Text};
+use iced::widget::{button, column, container, row, text, text_input};
 use iced::{Alignment, Length};
 use login::SaveData;
 
@@ -167,7 +167,7 @@ impl App {
             }
             Message::CheckAnswer => {
                 if let Some(exercise_data) = &mut self.exercise_data {
-                    if exercise_data.input_field_text == exercise_data.right_answer {
+                    if exercise_data.input_field_text.to_lowercase() == exercise_data.right_answer.to_lowercase() {
                         exercise_data.state = ExcerciseState::RightAnswer;
                     } else {
                         exercise_data.state = ExcerciseState::WrongAnswer;
@@ -471,12 +471,12 @@ impl App {
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::SelectedExcersise(4)),
+                ].spacing(15),
+                row![
                     button(text("5").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::SelectedExcersise(5)),
-                ].spacing(15),
-                row![
                     button(text("6").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
@@ -489,6 +489,8 @@ impl App {
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::SelectedExcersise(8)),
+                ].spacing(15),
+                row![
                     button(text("9").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
@@ -497,8 +499,6 @@ impl App {
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::SelectedExcersise(10)),
-                ].spacing(15),
-                row![
                     button(text("11").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
@@ -507,6 +507,8 @@ impl App {
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::SelectedExcersise(12)),
+                ].spacing(15),
+                row![
                     button(text("13").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0)),
@@ -516,11 +518,14 @@ impl App {
                         .on_press(Message::SelectedExcersise(14)),
                     button(text("15").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
                         .width(Length::Fixed(80.0))
+                        .height(Length::Fixed(80.0)),
+                    button(text("16").size(48).align_x(Horizontal::Center).align_y(Vertical::Center))
+                        .width(Length::Fixed(80.0))
                         .height(Length::Fixed(80.0))
                         .on_press(Message::SelectedExcersise(15)),
                 ].spacing(15),
-                button(text("Составить вариант").size(40).align_x(Horizontal::Center).align_y(Vertical::Center))
-                    .width(Length::Fixed(459.0))
+                button(text("Составить вариант").size(32).align_x(Horizontal::Center).align_y(Vertical::Center))
+                    .width(Length::Fixed(365.0))
                     .height(Length::Fixed(80.0))
                     .on_press(Message::CreateATest),
             ].spacing(15)
